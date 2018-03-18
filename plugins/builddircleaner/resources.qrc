@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/builddircleaner">
+        <file>conf.json</file>
+    </qresource>
+</RCC>
