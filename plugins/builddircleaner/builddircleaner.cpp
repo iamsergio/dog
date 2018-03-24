@@ -28,6 +28,8 @@
 
 #include <chrono>
 
+//#define DRY_RUN
+
 using namespace std;
 
 static QVariantMap readJson(const QString &filename)
@@ -50,6 +52,10 @@ void BuildDirCleaner::cleanAll()
 void BuildDirCleaner::cleanOne(const JobDescriptor &job)
 {
     QDir dir(job.path);
+    if (!job.pattern.isEmpty()) {
+        dir.setNameFilters(QStringList() << job.pattern);
+    }
+
     QStringList dirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
     const QDateTime now = QDateTime::currentDateTime();
     for (const QString &dirname : dirs) {
@@ -65,7 +71,13 @@ void BuildDirCleaner::cleanOne(const JobDescriptor &job)
         int age = date.daysTo(now);
 
         if (age > 2) {
-            if (dirToDelete.removeRecursively()) {
+            const bool success =
+#ifdef DRY_RUN
+            true;
+#else
+            dirToDelete.removeRecursively();
+#endif
+            if (success) {
                 q->log(QString("Removed %1").arg(dirToDelete.absolutePath()));
             } else {
                 q->log(QString("Unable to remove %1").arg(dirToDelete.absolutePath()));
@@ -120,7 +132,8 @@ JobDescriptor::List BuildDirCleanerPlugin::loadJson() const
     for (const QVariant &dirV : dirs) {
         QVariantMap dirMap = dirV.toMap();
         QString dir = dirMap.value("dir").toString();
-        jobs << JobDescriptor { dir };
+        QString pattern = dirMap.value("pattern").toString();
+        jobs << JobDescriptor { dir, pattern };
     }
 
     return jobs;

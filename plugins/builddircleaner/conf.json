@@ -2,6 +2,10 @@
     "dirs" : [
         {
             "dir" : "/data/build/qt/qt5/"
+        },
+        {
+            "dir" : "/data/sources/",
+            "pattern" : "build-*"
         }
     ]
 }
