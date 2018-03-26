@@ -69,5 +69,20 @@ Project {
             fileTagsFilter: "dynamiclibrary"
         }
     }
+    DynamicLibrary {
+        name: "backup"
+        files: [
+            "plugins/backup/backup.h",
+            "plugins/backup/backup.cpp"
+        ]
+        Depends { name: "cpp" }
+        Depends { name: "Qt.widgets" }
+        cpp.includePaths: [ '.' ]
+        Group {
+            qbs.install: true
+            qbs.installDir: "plugins/"
+            fileTagsFilter: "dynamiclibrary"
+        }
+    }
 }
 
