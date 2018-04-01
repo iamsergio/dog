@@ -24,23 +24,12 @@
 #include <QDir>
 #include <QDateTime>
 #include <QProcess>
-#include <QJsonDocument>
 
 #include <chrono>
 
 //#define DRY_RUN
 
 using namespace std;
-
-static QVariantMap readJson(const QString &filename)
-{
-    QFile f(filename);
-    f.open(QFile::ReadOnly);
-    QByteArray fileContents = f.readAll();
-    QJsonParseError jsonError; // TODO handle errors
-    QJsonDocument document = QJsonDocument::fromJson(fileContents, &jsonError);
-    return document.toVariant().toMap();
-}
 
 void BuildDirCleaner::cleanAll()
 {
@@ -127,7 +116,7 @@ void BuildDirCleanerPlugin::work()
 JobDescriptor::List BuildDirCleanerPlugin::loadJson() const
 {
     JobDescriptor::List jobs;
-    QVariantMap json = readJson(":/builddircleaner/conf.json");
+    QVariantMap json = readConfig();
     const QVariantList dirs = json.value("dirs").toList();
     for (const QVariant &dirV : dirs) {
         QVariantMap dirMap = dirV.toMap();

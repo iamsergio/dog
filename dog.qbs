@@ -9,17 +9,33 @@ Project {
             "kernel.cpp",
             "kernel.h",
             "main.cpp",
-            "PluginInterface.h",
             "resources.qrc",
             "logger.cpp",
             "logger.h"
         ]
         Depends { name: "cpp" }
         Depends { name: "Qt.widgets" }
+        Depends { name: "doglib" }
+
         Group {
             qbs.install: true
             qbs.installDir: ""
             fileTagsFilter: "application"
+        }
+    }
+
+    DynamicLibrary {
+        name: "doglib"
+        Depends { name: "cpp" }
+        Depends { name: "Qt.widgets" }
+        files: [
+            "PluginInterface.h",
+            "PluginInterface.cpp"
+        ]
+        Group {
+            qbs.install: true
+            qbs.installDir: ""
+            fileTagsFilter: "dynamiclibrary"
         }
     }
 
@@ -31,6 +47,7 @@ Project {
         ]
         Depends { name: "cpp" }
         Depends { name: "Qt.widgets" }
+        Depends { name: "doglib" }
         cpp.includePaths: [ '.' ]
         Group {
             qbs.install: true
@@ -46,6 +63,7 @@ Project {
         ]
         Depends { name: "cpp" }
         Depends { name: "Qt.widgets" }
+        Depends { name: "doglib" }
         cpp.includePaths: [ '.' ]
         Group {
             qbs.install: true
@@ -57,11 +75,11 @@ Project {
         name: "builddircleaner"
         files: [
             "plugins/builddircleaner/builddircleaner.h",
-            "plugins/builddircleaner/builddircleaner.cpp",
-            "plugins/builddircleaner/resources.qrc",
+            "plugins/builddircleaner/builddircleaner.cpp"
         ]
         Depends { name: "cpp" }
         Depends { name: "Qt.widgets" }
+        Depends { name: "doglib" }
         cpp.includePaths: [ '.' ]
         Group {
             qbs.install: true
@@ -77,6 +95,7 @@ Project {
         ]
         Depends { name: "cpp" }
         Depends { name: "Qt.widgets" }
+        Depends { name: "doglib" }
         cpp.includePaths: [ '.' ]
         Group {
             qbs.install: true

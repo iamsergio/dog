@@ -76,6 +76,7 @@ public:
     BuildDirCleanerPlugin();
     QString name() const override;
     QString shortName() const override;
+    QString identifier() const override { return "builddircleaner"; }
     void start() override;
 
 signals:

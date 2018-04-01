@@ -23,25 +23,34 @@
 #include <QString>
 #include <QList>
 #include <QtPlugin>
+#include <QVariantMap>
 
 class PluginInterface
 {
 public:
     typedef QList<PluginInterface*> List;
 
-    PluginInterface() = default;
-    virtual ~PluginInterface() {}
+    PluginInterface();
+    virtual ~PluginInterface() { }
 
     //virtual bool enabled() const = 0;
     //virtual void setEnabled(bool enabled) = 0;
     virtual QString name() const = 0;
     virtual QString shortName() const = 0;
+    virtual QString identifier() const = 0;
     virtual void start() = 0;
+
+protected:
+    QString qrcPath() const;
+    QString configFile() const;
+    QVariantMap readConfig() const;
+
 private:
     Q_DISABLE_COPY(PluginInterface);
+    class Private;
+    Private *const d;
 };
 
 Q_DECLARE_INTERFACE(PluginInterface, "smartins.dog.PluginInterface/v1.0")
 
 #endif
-

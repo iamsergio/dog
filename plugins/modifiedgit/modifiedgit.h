@@ -39,6 +39,7 @@ public:
     ModifiedGitPlugin();
     QString name() const override;
     QString shortName() const override;
+    QString identifier() const override { return "modifiedgit"; }
     void start() override;
 
 signals:

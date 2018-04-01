@@ -39,6 +39,7 @@ public:
     BackupPlugin();
     QString name() const override;
     QString shortName() const override;
+    QString identifier() const override { return "backup"; }
     void start() override;
 
 signals:

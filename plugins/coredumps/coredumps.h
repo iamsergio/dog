@@ -63,6 +63,7 @@ public:
     CoreDumpsPlugin();
     QString name() const override;
     QString shortName() const override;
+    QString identifier() const override { return "coredumps"; }
     void start() override;
 
 signals:
