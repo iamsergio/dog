@@ -63,7 +63,7 @@ QString PluginInterface::qrcPath() const
 
 QString PluginInterface::configFile() const
 {
-    return d->m_config_path + "conf.json";
+    return QString("%1/%2/conf.json").arg(d->m_config_path, identifier());
 }
 
 QVariantMap PluginInterface::readConfig() const
