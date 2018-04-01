@@ -93,11 +93,6 @@ void CoreDumpsPlugin::start()
 
 void CoreDumpsPlugin::work_impl()
 {
-    auto thread = new QThread();
     auto worker = new CoreDumpCleaner(this);
-    worker->moveToThread(thread);
-    connect(thread, &QThread::started, worker, &CoreDumpCleaner::clean);
-    connect(worker, &QObject::destroyed, thread, &QThread::quit);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-    thread->start();
+    startInWorkerThread(worker, &CoreDumpCleaner::clean);
 }

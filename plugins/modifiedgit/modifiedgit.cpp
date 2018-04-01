@@ -52,11 +52,6 @@ void ModifiedGitPlugin::start()
 
 void ModifiedGitPlugin::work_impl()
 {
-    /*auto thread = new QThread();
-    auto worker = new CoreDumpCleaner();
-    worker->moveToThread(thread);
-    connect(thread, &QThread::started, worker, &CoreDumpCleaner::clean);
-    connect(worker, &QObject::destroyed, thread, &QThread::quit);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-    thread->start();*/
+    //auto worker = new BuildDirCleaner(m_jobs, this);
+    //startInWorkerThread(worker, &BuildDirCleaner::cleanAll);
 }

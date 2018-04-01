@@ -29,6 +29,19 @@
 
 using namespace std;
 
+Backuper::Backuper(const BackupPlugin::BackupItem::List &items, QObject *parent)
+    : QObject(parent)
+    , m_backupItems(items)
+{
+}
+
+void Backuper::backup()
+{
+    for (const auto &item : m_backupItems) {
+
+    }
+}
+
 BackupPlugin::BackupPlugin()
 {
     m_timer.setInterval(chrono::hours(24 * 2)); // backup every 2 days
@@ -53,13 +66,8 @@ void BackupPlugin::start()
 
 void BackupPlugin::work_impl()
 {
-    /*auto thread = new QThread();
-    auto worker = new CoreDumpCleaner();
-    worker->moveToThread(thread);
-    connect(thread, &QThread::started, worker, &CoreDumpCleaner::clean);
-    connect(worker, &QObject::destroyed, thread, &QThread::quit);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-    thread->start();*/
+    auto worker = new Backuper(m_backupItems, this);
+    startInWorkerThread(worker, &Backuper::backup);
 }
 
 void BackupPlugin::loadJson()

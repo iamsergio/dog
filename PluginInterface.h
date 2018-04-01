@@ -26,6 +26,7 @@
 #include <QVariantMap>
 #include <QObject>
 #include <QTimer>
+#include <QThread>
 
 class FileService;
 
@@ -55,6 +56,9 @@ protected:
     QString qrcPath() const;
     QString configFile() const;
     QVariantMap readConfig() const;
+
+    template <typename Slot>
+    QThread *startInWorkerThread(QObject *worker, Slot slot);
 
     void work();
     virtual void work_impl() = 0;

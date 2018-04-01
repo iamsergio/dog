@@ -102,13 +102,8 @@ void BuildDirCleanerPlugin::start()
 
 void BuildDirCleanerPlugin::work_impl()
 {
-    auto thread = new QThread();
     auto worker = new BuildDirCleaner(m_jobs, this);
-    worker->moveToThread(thread);
-    connect(thread, &QThread::started, worker, &BuildDirCleaner::cleanAll);
-    connect(worker, &QObject::destroyed, thread, &QThread::quit);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-    thread->start();
+    startInWorkerThread(worker, &BuildDirCleaner::cleanAll);
 }
 
 JobDescriptor::List BuildDirCleanerPlugin::loadJson() const

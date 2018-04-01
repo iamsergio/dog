@@ -56,4 +56,16 @@ private:
     BackupItem::List m_backupItems;
 };
 
+class Backuper : public QObject {
+    Q_OBJECT
+public:
+    explicit Backuper(const BackupPlugin::BackupItem::List &items, QObject *parent);
+
+public Q_SLOTS:
+    void backup();
+
+private:
+     BackupPlugin::BackupItem::List m_backupItems;
+};
+
 #endif
