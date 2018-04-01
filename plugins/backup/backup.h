@@ -24,10 +24,9 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QVector>
 
 class QFileInfo;
-
-
 
 class BackupPlugin : public PluginInterface
 {
@@ -36,6 +35,14 @@ class BackupPlugin : public PluginInterface
     Q_INTERFACES(PluginInterface)
 
 public:
+
+    struct BackupItem {
+        typedef QVector<BackupItem> List;
+        QString name;
+        QString destination;
+        bool encrypt;
+    };
+
     BackupPlugin();
     QString name() const override;
     QString shortName() const override;
@@ -43,9 +50,11 @@ public:
     void start() override;
 
 private:
+    void loadJson();
     void work();
     QTimer m_timer;
     bool m_working = false;
+    BackupItem::List m_backupItems;
 };
 
 #endif

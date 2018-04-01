@@ -47,9 +47,25 @@ QString BackupPlugin::shortName() const
 
 void BackupPlugin::start()
 {
+    loadJson();
     m_timer.start();
     work();
-    qDebug() << "BackupPlugin::start()";
+}
+
+void BackupPlugin::loadJson()
+{
+    QVariantMap json = readConfig();
+    auto items = json.value("items").toList();
+    for (const QVariant &i : items) {
+        QVariantMap item = i.toMap();
+        auto name = item.value("name").toString();
+        auto destination = item.value("destination").toString();
+        auto encrypt = item.value("encrypt").toBool();
+
+        m_backupItems.append({name, destination, encrypt });
+    }
+
+    emit log(QString("Loaded %1 backup items").arg(m_backupItems.size()));
 }
 
 void BackupPlugin::work()

@@ -49,7 +49,6 @@ void ModifiedGitPlugin::start()
 {
     m_timer.start();
     work();
-    qDebug() << "ModifiedGitPlugin::start()";
 }
 
 void ModifiedGitPlugin::work()
