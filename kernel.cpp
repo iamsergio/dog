@@ -84,13 +84,17 @@ void Kernel::loadPlugins()
 {
     QDir pluginsDir = qApp->applicationDirPath() + "/plugins/";
     foreach (const QString &fileName, pluginsDir.entryList(QDir::Files)) {
-        qDebug() << "trying " << pluginsDir.absoluteFilePath(fileName);
         QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
         if (QObject *pluginObject = loader.instance()) {
             if (auto p = qobject_cast<PluginInterface*>(pluginObject)) {
                 m_plugins << p;
                 connect(p, &PluginInterface::log, this, &Kernel::log);
+                qDebug() << "Loadded " << fileName;
+            } else {
+                qWarning() << "Failed to load " << pluginsDir.absoluteFilePath(fileName);
             }
+        } else {
+            qWarning() << "Failed to load" << pluginsDir.absoluteFilePath(fileName);
         }
     }
 }
