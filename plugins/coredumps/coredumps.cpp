@@ -18,6 +18,7 @@
 */
 
 #include "coredumps.h"
+#include "fileservice.h"
 
 #include <QDebug>
 #include <QThread>
@@ -43,32 +44,13 @@ void CoreDumpCleaner::clean()
     for (const QFileInfo &file : fileInfos) {
         Action action = actionForFile(file);
         if (action == Action_Delete)
-            removeFile(file.absoluteFilePath());
+            q->m_fileService->removeFile(file.absoluteFilePath());
         else if (action == Action_Compress)
-            compressFile(file.absoluteFilePath());
+            q->m_fileService->compressFile(file.absoluteFilePath());
     }
 
     // We're done, delete the worker
     deleteLater();
-}
-
-bool CoreDumpCleaner::isCompressed(const QFileInfo &file) const
-{
-    // Returns true if the coredump is compressed. Which for us means having a zsdt extension
-    return file.suffix() == "zst";
-}
-
-void CoreDumpCleaner::removeFile(const QString &file)
-{
-    emit q->log("CoreDumpCleaner::removeFile: removing " + file);
-    QFile::remove(file);
-}
-
-void CoreDumpCleaner::compressFile(const QString &file)
-{
-    emit q->log("CoreDumpCleaner::compressFile: compressing file " + file + "...");
-    QProcess::execute(QString("zstd %1").arg(file));
-    QFile::remove(file);
 }
 
 CoreDumpCleaner::Action CoreDumpCleaner::actionForFile(const QFileInfo &file) const
@@ -82,7 +64,7 @@ CoreDumpCleaner::Action CoreDumpCleaner::actionForFile(const QFileInfo &file) co
     if (ageInDays > 7)
         return Action_Delete;
 
-    if (ageInHours > 5 && !isCompressed(file))
+    if (ageInHours > 5 && !q->m_fileService->isCompressed(file))
         return Action_Compress;
 
     return Action_None;

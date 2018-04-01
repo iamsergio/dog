@@ -26,6 +26,8 @@
 #include <QVariantMap>
 #include <QObject>
 
+class FileService;
+
 class PluginInterface : public QObject
 {
     Q_OBJECT
@@ -51,6 +53,8 @@ protected:
     QString qrcPath() const;
     QString configFile() const;
     QVariantMap readConfig() const;
+
+    FileService *const m_fileService;
 
 private:
     Q_DISABLE_COPY(PluginInterface);

@@ -18,6 +18,7 @@
 */
 
 #include "PluginInterface.h"
+#include "fileservice.h"
 
 #include <QFile>
 #include <QJsonDocument>
@@ -47,7 +48,8 @@ static QVariantMap readJson(const QString &filename)
 }
 
 PluginInterface::PluginInterface()
-    : d(new Private(qgetenv("DOG_CONFIG_PATH")))
+    : m_fileService(new FileService(this))
+    , d(new Private(qgetenv("DOG_CONFIG_PATH")))
 {
 }
 

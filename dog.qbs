@@ -30,7 +30,9 @@ Project {
         Depends { name: "Qt.widgets" }
         files: [
             "PluginInterface.h",
-            "PluginInterface.cpp"
+            "PluginInterface.cpp",
+            "fileservice.cpp",
+            "fileservice.h",
         ]
         Group {
             qbs.install: true
@@ -91,7 +93,7 @@ Project {
         name: "backup"
         files: [
             "plugins/backup/backup.h",
-            "plugins/backup/backup.cpp"
+            "plugins/backup/backup.cpp",
         ]
         Depends { name: "cpp" }
         Depends { name: "Qt.widgets" }

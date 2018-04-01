@@ -46,9 +46,6 @@ signals:
 
 private:
    Q_ENUM(Action)
-   bool isCompressed(const QFileInfo &file) const;
-   void compressFile(const QString &file);
-   void removeFile(const QString &file);
    Action actionForFile(const QFileInfo &file) const;
    CoreDumpsPlugin *const q;
 };
