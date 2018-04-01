@@ -36,16 +36,16 @@ bool FileService::isCompressed(const QFileInfo &file) const
     return file.suffix() == "zst";
 }
 
-void FileService::removeFile(const QString &file)
+bool FileService::removeFile(const QString &file)
 {
     emit q->log("FileService::removeFile: removing " + file);
-    QFile::remove(file);
+    return QFile::remove(file);
 }
 
-void FileService::compressFile(const QString &file)
+bool FileService::compressFile(const QString &file)
 {
     // Methods will already be running on a separate thread, no need for async.
     emit q->log("FileService::compressFile: compressing file " + file + "...");
-    QProcess::execute(QString("zstd %1").arg(file));
-    QFile::remove(file);
+    bool success = QProcess::execute(QString("zstd %1").arg(file)) == 0;
+    return success && QFile::remove(file);
 }
