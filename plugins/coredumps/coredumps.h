@@ -53,7 +53,7 @@ private:
    CoreDumpsPlugin *const q;
 };
 
-class CoreDumpsPlugin : public QObject, public PluginInterface
+class CoreDumpsPlugin : public PluginInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "smartins.dog.PluginInterface/v1.0.0")
@@ -65,9 +65,6 @@ public:
     QString shortName() const override;
     QString identifier() const override { return "coredumps"; }
     void start() override;
-
-signals:
-    void log(const QString &text);
 
 private:
     friend class CoreDumpCleaner;

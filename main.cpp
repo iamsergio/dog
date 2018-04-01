@@ -26,5 +26,8 @@ int main(int argc, char**argv)
     QApplication app(argc, argv);
     Kernel kernel;
 
+    if (!kernel.isValid())
+        return 1;
+
     return app.exec();
 }

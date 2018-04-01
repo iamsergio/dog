@@ -32,6 +32,7 @@ class Kernel : public QObject
 public:
     Kernel();
     ~Kernel();
+    bool isValid() const { return m_valid; }
 private Q_SLOTS:
     void log(const QString &);
 private:
@@ -41,6 +42,8 @@ private:
     QSystemTrayIcon *const m_systrayIcon;
     PluginInterface::List m_plugins;
     Logger *const m_logger;
+    QString m_configPath;
+    bool m_valid = true;
 };
 
 #endif

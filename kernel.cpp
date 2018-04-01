@@ -29,6 +29,13 @@ Kernel::Kernel()
     , m_systrayIcon(new QSystemTrayIcon(QIcon(), this))
     , m_logger(new Logger())
 {
+    m_configPath = qgetenv("DOG_CONFIG_PATH");
+    if (m_configPath.isEmpty() || !QFile::exists(m_configPath)) {
+        qWarning() << "DOG_CONFIG_PATH needs to be set and point to a valid path";
+        m_valid = false;
+        return;
+    }
+
     loadPlugins();
     startPlugins();
     setupTrayIcon();
@@ -82,7 +89,7 @@ void Kernel::loadPlugins()
         if (QObject *pluginObject = loader.instance()) {
             if (auto p = qobject_cast<PluginInterface*>(pluginObject)) {
                 m_plugins << p;
-                connect(pluginObject, SIGNAL(log(QString)), this, SLOT(log(QString)));
+                connect(p, &PluginInterface::log, this, &Kernel::log);
             }
         }
     }

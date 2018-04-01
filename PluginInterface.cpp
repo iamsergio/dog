@@ -30,13 +30,10 @@ public:
     Private(const QString &config_path)
         : m_config_path(config_path)
     {
-        if (!QFile::exists(m_config_path)) {
-            qWarning() << "DOG_CONFIG_PATH needs to be set and point to a valid path";
-            qApp->quit();
-        }
     }
 
     const QString m_config_path;
+    bool m_valid = true;
 };
 
 static QVariantMap readJson(const QString &filename)
@@ -52,6 +49,11 @@ static QVariantMap readJson(const QString &filename)
 PluginInterface::PluginInterface()
     : d(new Private(qgetenv("DOG_CONFIG_PATH")))
 {
+}
+
+bool PluginInterface::isValid() const
+{
+    return d->m_valid;
 }
 
 QString PluginInterface::qrcPath() const

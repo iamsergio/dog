@@ -24,14 +24,18 @@
 #include <QList>
 #include <QtPlugin>
 #include <QVariantMap>
+#include <QObject>
 
-class PluginInterface
+class PluginInterface : public QObject
 {
+    Q_OBJECT
 public:
     typedef QList<PluginInterface*> List;
 
     PluginInterface();
     virtual ~PluginInterface() { }
+
+    bool isValid() const;
 
     //virtual bool enabled() const = 0;
     //virtual void setEnabled(bool enabled) = 0;
@@ -39,6 +43,9 @@ public:
     virtual QString shortName() const = 0;
     virtual QString identifier() const = 0;
     virtual void start() = 0;
+
+signals:
+    void log(const QString &);
 
 protected:
     QString qrcPath() const;
