@@ -39,6 +39,7 @@ public:
     virtual ~PluginInterface() { }
 
     bool isValid() const;
+    bool isWorking() const;
 
     //virtual bool enabled() const = 0;
     //virtual void setEnabled(bool enabled) = 0;
@@ -54,11 +55,11 @@ protected:
     QString qrcPath() const;
     QString configFile() const;
     QVariantMap readConfig() const;
-    virtual void onTimerTick();
 
+    void work();
+    virtual void work_impl() = 0;
 
     FileService *const m_fileService;
-    bool m_working = false;
     QTimer m_timer;
 private:
     Q_DISABLE_COPY(PluginInterface);

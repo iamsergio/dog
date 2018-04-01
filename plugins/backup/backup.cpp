@@ -31,7 +31,7 @@ using namespace std;
 
 BackupPlugin::BackupPlugin()
 {
-    m_timer.setInterval(chrono::hours(1));
+    m_timer.setInterval(chrono::hours(24 * 2)); // backup every 2 days
 }
 
 QString BackupPlugin::name() const
@@ -48,12 +48,11 @@ void BackupPlugin::start()
 {
     loadJson();
     m_timer.start();
-    onTimerTick();
+    work();
 }
 
-void BackupPlugin::onTimerTick()
+void BackupPlugin::work_impl()
 {
-    m_working = true;
     /*auto thread = new QThread();
     auto worker = new CoreDumpCleaner();
     worker->moveToThread(thread);

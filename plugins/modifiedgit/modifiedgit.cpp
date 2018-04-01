@@ -47,12 +47,11 @@ QString ModifiedGitPlugin::shortName() const
 void ModifiedGitPlugin::start()
 {
     m_timer.start();
-    onTimerTick();
+    work();
 }
 
-void ModifiedGitPlugin::onTimerTick()
+void ModifiedGitPlugin::work_impl()
 {
-    m_working = true;
     /*auto thread = new QThread();
     auto worker = new CoreDumpCleaner();
     worker->moveToThread(thread);

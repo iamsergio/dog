@@ -63,7 +63,7 @@ public:
     void start() override;
 
 protected:
-    void onTimerTick() override;
+    void work_impl() override;
 
 private:
     friend class CoreDumpCleaner;

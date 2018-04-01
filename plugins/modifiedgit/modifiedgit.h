@@ -40,7 +40,7 @@ public:
     void start() override;
 
 protected:
-    void onTimerTick() override;
+    void work_impl() override;
 };
 
 #endif

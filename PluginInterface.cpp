@@ -35,6 +35,7 @@ public:
 
     const QString m_config_path;
     bool m_valid = true;
+    bool working = false;
 };
 
 static QVariantMap readJson(const QString &filename)
@@ -51,12 +52,17 @@ PluginInterface::PluginInterface()
     : m_fileService(new FileService(this))
     , d(new Private(qgetenv("DOG_CONFIG_PATH")))
 {
-    connect(&m_timer, &QTimer::timeout, this, &PluginInterface::onTimerTick);
+    connect(&m_timer, &QTimer::timeout, this, &PluginInterface::work_impl);
 }
 
 bool PluginInterface::isValid() const
 {
     return d->m_valid;
+}
+
+bool PluginInterface::isWorking() const
+{
+    return d->working;
 }
 
 QString PluginInterface::qrcPath() const
@@ -74,6 +80,10 @@ QVariantMap PluginInterface::readConfig() const
     return readJson(configFile());
 }
 
-void PluginInterface::onTimerTick()
+void PluginInterface::work()
 {
+    Q_ASSERT(!isWorking());
+    d->working = true;
+    work_impl();
+    d->working = false;
 }

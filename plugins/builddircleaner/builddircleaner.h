@@ -79,7 +79,7 @@ public:
     void start() override;
 
 protected:
-    void onTimerTick() override;
+    void work_impl() override;
 
 private:
     JobDescriptor::List loadJson() const;

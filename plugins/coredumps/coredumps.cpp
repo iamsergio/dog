@@ -88,12 +88,11 @@ QString CoreDumpsPlugin::shortName() const
 void CoreDumpsPlugin::start()
 {
     m_timer.start();
-    onTimerTick();
+    work();
 }
 
-void CoreDumpsPlugin::onTimerTick()
+void CoreDumpsPlugin::work_impl()
 {
-    m_working = true;
     auto thread = new QThread();
     auto worker = new CoreDumpCleaner(this);
     worker->moveToThread(thread);

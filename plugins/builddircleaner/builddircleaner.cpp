@@ -97,12 +97,11 @@ QString BuildDirCleanerPlugin::shortName() const
 void BuildDirCleanerPlugin::start()
 {
     m_timer.start();
-    onTimerTick();
+    work();
 }
 
-void BuildDirCleanerPlugin::onTimerTick()
+void BuildDirCleanerPlugin::work_impl()
 {
-    m_working = true;
     auto thread = new QThread();
     auto worker = new BuildDirCleaner(m_jobs, this);
     worker->moveToThread(thread);
