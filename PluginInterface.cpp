@@ -96,15 +96,3 @@ void PluginInterface::work()
     work_impl();
     d->working = false;
 }
-
-template<typename Slot>
-QThread *PluginInterface::startInWorkerThread(QObject *worker, Slot slot)
-{
-    auto thread = new QThread();
-    worker->moveToThread(thread);
-    connect(thread, &QThread::started, worker, slot);
-    connect(worker, &QObject::destroyed, thread, &QThread::quit);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-    thread->start();
-    return thread;
-}

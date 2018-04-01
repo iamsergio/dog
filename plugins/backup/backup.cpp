@@ -29,8 +29,8 @@
 
 using namespace std;
 
-Backuper::Backuper(const BackupPlugin::BackupItem::List &items, QObject *parent)
-    : QObject(parent)
+Backuper::Backuper(const BackupPlugin::BackupItem::List &items)
+    : QObject(nullptr)
     , m_backupItems(items)
 {
 }
@@ -66,7 +66,7 @@ void BackupPlugin::start()
 
 void BackupPlugin::work_impl()
 {
-    auto worker = new Backuper(m_backupItems, this);
+    auto worker = new Backuper(m_backupItems);
     startInWorkerThread(worker, &Backuper::backup);
 }
 

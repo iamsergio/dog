@@ -58,8 +58,17 @@ protected:
     QString configFile() const;
     QVariantMap readConfig() const;
 
-    template <typename Slot>
-    QThread *startInWorkerThread(QObject *worker, Slot slot);
+    template <typename Obj, typename Slot>
+    QThread *startInWorkerThread(Obj *worker, Slot slot)
+    {
+        auto thread = new QThread();
+        worker->moveToThread(thread);
+        connect(thread, &QThread::started, worker, slot);
+        connect(worker, &QObject::destroyed, thread, &QThread::quit);
+        connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+        thread->start();
+        return thread;
+    }
 
     void work();
     virtual void work_impl() = 0;
