@@ -71,8 +71,8 @@ CoreDumpCleaner::Action CoreDumpCleaner::actionForFile(const QFileInfo &file) co
 }
 
 CoreDumpsPlugin::CoreDumpsPlugin()
+    : PluginInterface(chrono::hours(1))
 {
-    m_timer.setInterval(chrono::hours(1));
 }
 
 QString CoreDumpsPlugin::name() const

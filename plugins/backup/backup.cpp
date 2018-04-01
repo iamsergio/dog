@@ -43,8 +43,8 @@ void Backuper::backup()
 }
 
 BackupPlugin::BackupPlugin()
+    : PluginInterface(chrono::hours(24 * 2))
 {
-    m_timer.setInterval(chrono::hours(24 * 2)); // backup every 2 days
 }
 
 QString BackupPlugin::name() const

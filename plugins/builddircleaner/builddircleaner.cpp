@@ -79,9 +79,9 @@ void BuildDirCleaner::cleanOne(const JobDescriptor &job)
 }
 
 BuildDirCleanerPlugin::BuildDirCleanerPlugin()
-    : m_jobs(loadJson())
+    : PluginInterface(chrono::hours(1))
+    , m_jobs(loadJson())
 {
-    m_timer.setInterval(chrono::hours(1));
 }
 
 QString BuildDirCleanerPlugin::name() const

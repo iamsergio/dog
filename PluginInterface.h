@@ -37,6 +37,7 @@ public:
     typedef QList<PluginInterface*> List;
 
     PluginInterface();
+    PluginInterface(std::chrono::milliseconds timerInterval);
     virtual ~PluginInterface() { }
 
     bool isValid() const;

@@ -30,8 +30,8 @@
 using namespace std;
 
 ModifiedGitPlugin::ModifiedGitPlugin()
+    : PluginInterface(chrono::hours(1))
 {
-    m_timer.setInterval(chrono::hours(1));
 }
 
 QString ModifiedGitPlugin::name() const

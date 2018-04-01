@@ -25,16 +25,18 @@
 #include <QCoreApplication>
 #include <QDebug>
 
+using namespace std;
+
 class PluginInterface::Private
 {
 public:
     Private(const QString &config_path)
-        : m_config_path(config_path)
+        : config_path(config_path)
     {
     }
 
-    const QString m_config_path;
-    bool m_valid = true;
+    const QString config_path;
+    bool valid = true;
     bool working = false;
 };
 
@@ -55,9 +57,16 @@ PluginInterface::PluginInterface()
     connect(&m_timer, &QTimer::timeout, this, &PluginInterface::work_impl);
 }
 
+PluginInterface::PluginInterface(chrono::milliseconds timerInterval)
+    : m_fileService(new FileService(this))
+    , d(new Private(qgetenv("DOG_CONFIG_PATH")))
+{
+    m_timer.setInterval(timerInterval);
+}
+
 bool PluginInterface::isValid() const
 {
-    return d->m_valid;
+    return d->valid;
 }
 
 bool PluginInterface::isWorking() const
@@ -72,7 +81,7 @@ QString PluginInterface::qrcPath() const
 
 QString PluginInterface::configFile() const
 {
-    return QString("%1/%2/conf.json").arg(d->m_config_path, identifier());
+    return QString("%1/%2/conf.json").arg(d->config_path, identifier());
 }
 
 QVariantMap PluginInterface::readConfig() const
