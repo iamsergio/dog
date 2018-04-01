@@ -18,6 +18,7 @@
 */
 
 #include "backup.h"
+#include "fileservice.h"
 
 #include <QDebug>
 #include <QThread>
@@ -29,17 +30,23 @@
 
 using namespace std;
 
-Backuper::Backuper(const BackupPlugin::BackupItem::List &items)
+Backuper::Backuper(BackupPlugin *q, const BackupPlugin::BackupItem::List &items)
     : QObject(nullptr)
     , m_backupItems(items)
+    , q(q)
 {
 }
 
 void Backuper::backup()
 {
     for (const auto &item : m_backupItems) {
-
+        if (!q->fileService()->tarDirectory(item.source)) {
+            deleteLater();
+            return;
+        }
     }
+
+    deleteLater();
 }
 
 BackupPlugin::BackupPlugin()
@@ -66,7 +73,7 @@ void BackupPlugin::start()
 
 void BackupPlugin::work_impl()
 {
-    auto worker = new Backuper(m_backupItems);
+    auto worker = new Backuper(this, m_backupItems);
     startInWorkerThread(worker, &Backuper::backup);
 }
 
@@ -77,10 +84,11 @@ void BackupPlugin::loadJson()
     for (const QVariant &i : items) {
         QVariantMap item = i.toMap();
         auto name = item.value("name").toString();
+        auto source = item.value("source").toString();
         auto destination = item.value("destination").toString();
         auto encrypt = item.value("encrypt").toBool();
 
-        m_backupItems.append({name, destination, encrypt });
+        m_backupItems.append({name, source, destination, encrypt });
     }
 
     emit log(QString("Loaded %1 backup items").arg(m_backupItems.size()));

@@ -34,6 +34,7 @@ public:
     bool compressFile(const QString &file, bool remove_original = true);
     bool removeFile(const QString &file);
     bool tarDirectory(const QString &path);
+    bool encriptFile(const QString &file);
 private:
     PluginInterface *const q;
 };

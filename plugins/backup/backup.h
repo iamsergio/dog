@@ -38,6 +38,7 @@ public:
     struct BackupItem {
         typedef QVector<BackupItem> List;
         QString name;
+        QString source;
         QString destination;
         bool encrypt;
     };
@@ -59,13 +60,14 @@ private:
 class Backuper : public QObject {
     Q_OBJECT
 public:
-    explicit Backuper(const BackupPlugin::BackupItem::List &items);
+    explicit Backuper(BackupPlugin *q, const BackupPlugin::BackupItem::List &items);
 
 public Q_SLOTS:
     void backup();
 
 private:
      BackupPlugin::BackupItem::List m_backupItems;
+     BackupPlugin *const q;
 };
 
 #endif

@@ -50,6 +50,8 @@ public:
     virtual QString identifier() const = 0;
     virtual void start() = 0;
 
+    FileService *fileService() const { return m_fileService; }
+
 signals:
     void log(const QString &);
 

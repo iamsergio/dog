@@ -23,6 +23,8 @@
 #include <QFileInfo>
 #include <QFile>
 #include <QProcess>
+#include <QDebug>
+#include <QDir>
 
 FileService::FileService(PluginInterface *parent)
     : QObject(parent)
@@ -61,15 +63,27 @@ bool FileService::tarDirectory(const QString &path)
         return false;
     }
 
-    const QString tar_filename = info.path() + "/" + info.baseName() + ".tar";
+    QDir dir = info.dir();
+    dir.cdUp();
 
-    bool success = QProcess::execute(QString("tar cvzf %1 %2").arg(path, tar_filename)) == 0;
+    const QString tar_filename = dir.path() + "/" + info.dir().dirName() + ".tar";;
+
+    bool success = QProcess::execute(QString("tar cvzf %1 %2").arg(tar_filename, path)) == 0;
     if (!success) {
         emit q->log("FileService::tarDirectory: error executing tar");
         return false;
     }
 
     if (!compressFile(tar_filename))
+        return false;
+
+    return true;
+}
+
+bool FileService::encryptFile(const QString &file)
+{
+    static QString encryptionCommand = qgetenv("DOG_ENCRYPTION_COMMAND");
+    if (encryptionCommand.isEmpty())
         return false;
 
     return true;
