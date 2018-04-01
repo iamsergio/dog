@@ -82,7 +82,6 @@ BuildDirCleanerPlugin::BuildDirCleanerPlugin()
     : m_jobs(loadJson())
 {
     m_timer.setInterval(chrono::hours(1));
-    connect(&m_timer, &QTimer::timeout, this, &BuildDirCleanerPlugin::work);
 }
 
 QString BuildDirCleanerPlugin::name() const
@@ -98,10 +97,10 @@ QString BuildDirCleanerPlugin::shortName() const
 void BuildDirCleanerPlugin::start()
 {
     m_timer.start();
-    work();
+    onTimerTick();
 }
 
-void BuildDirCleanerPlugin::work()
+void BuildDirCleanerPlugin::onTimerTick()
 {
     m_working = true;
     auto thread = new QThread();

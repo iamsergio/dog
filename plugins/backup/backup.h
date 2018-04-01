@@ -23,7 +23,6 @@
 #include "PluginInterface.h"
 
 #include <QObject>
-#include <QTimer>
 #include <QVector>
 
 class QFileInfo;
@@ -49,11 +48,11 @@ public:
     QString identifier() const override { return "backup"; }
     void start() override;
 
+protected:
+    void onTimerTick() override;
+
 private:
     void loadJson();
-    void work();
-    QTimer m_timer;
-    bool m_working = false;
     BackupItem::List m_backupItems;
 };
 

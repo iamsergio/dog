@@ -23,7 +23,6 @@
 #include "PluginInterface.h"
 
 #include <QObject>
-#include <QTimer>
 #include <QVector>
 
 class QFileInfo;
@@ -79,11 +78,11 @@ public:
     QString identifier() const override { return "builddircleaner"; }
     void start() override;
 
+protected:
+    void onTimerTick() override;
+
 private:
-    void work();
     JobDescriptor::List loadJson() const;
-    QTimer m_timer;
-    bool m_working = false;
     const JobDescriptor::List m_jobs;
 };
 

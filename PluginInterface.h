@@ -25,6 +25,7 @@
 #include <QtPlugin>
 #include <QVariantMap>
 #include <QObject>
+#include <QTimer>
 
 class FileService;
 
@@ -53,9 +54,12 @@ protected:
     QString qrcPath() const;
     QString configFile() const;
     QVariantMap readConfig() const;
+    virtual void onTimerTick();
+
 
     FileService *const m_fileService;
-
+    bool m_working = false;
+    QTimer m_timer;
 private:
     Q_DISABLE_COPY(PluginInterface);
     class Private;

@@ -32,7 +32,6 @@ using namespace std;
 ModifiedGitPlugin::ModifiedGitPlugin()
 {
     m_timer.setInterval(chrono::hours(1));
-    connect(&m_timer, &QTimer::timeout, this, &ModifiedGitPlugin::work);
 }
 
 QString ModifiedGitPlugin::name() const
@@ -48,10 +47,10 @@ QString ModifiedGitPlugin::shortName() const
 void ModifiedGitPlugin::start()
 {
     m_timer.start();
-    work();
+    onTimerTick();
 }
 
-void ModifiedGitPlugin::work()
+void ModifiedGitPlugin::onTimerTick()
 {
     m_working = true;
     /*auto thread = new QThread();

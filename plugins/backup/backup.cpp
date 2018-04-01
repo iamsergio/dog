@@ -32,7 +32,6 @@ using namespace std;
 BackupPlugin::BackupPlugin()
 {
     m_timer.setInterval(chrono::hours(1));
-    connect(&m_timer, &QTimer::timeout, this, &BackupPlugin::work);
 }
 
 QString BackupPlugin::name() const
@@ -49,7 +48,19 @@ void BackupPlugin::start()
 {
     loadJson();
     m_timer.start();
-    work();
+    onTimerTick();
+}
+
+void BackupPlugin::onTimerTick()
+{
+    m_working = true;
+    /*auto thread = new QThread();
+    auto worker = new CoreDumpCleaner();
+    worker->moveToThread(thread);
+    connect(thread, &QThread::started, worker, &CoreDumpCleaner::clean);
+    connect(worker, &QObject::destroyed, thread, &QThread::quit);
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+    thread->start();*/
 }
 
 void BackupPlugin::loadJson()
@@ -66,16 +77,4 @@ void BackupPlugin::loadJson()
     }
 
     emit log(QString("Loaded %1 backup items").arg(m_backupItems.size()));
-}
-
-void BackupPlugin::work()
-{
-    m_working = true;
-    /*auto thread = new QThread();
-    auto worker = new CoreDumpCleaner();
-    worker->moveToThread(thread);
-    connect(thread, &QThread::started, worker, &CoreDumpCleaner::clean);
-    connect(worker, &QObject::destroyed, thread, &QThread::quit);
-    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
-    thread->start();*/
 }

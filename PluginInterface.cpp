@@ -51,6 +51,7 @@ PluginInterface::PluginInterface()
     : m_fileService(new FileService(this))
     , d(new Private(qgetenv("DOG_CONFIG_PATH")))
 {
+    connect(&m_timer, &QTimer::timeout, this, &PluginInterface::onTimerTick);
 }
 
 bool PluginInterface::isValid() const
@@ -71,4 +72,8 @@ QString PluginInterface::configFile() const
 QVariantMap PluginInterface::readConfig() const
 {
     return readJson(configFile());
+}
+
+void PluginInterface::onTimerTick()
+{
 }

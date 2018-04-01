@@ -23,7 +23,6 @@
 #include "PluginInterface.h"
 
 #include <QObject>
-#include <QTimer>
 
 class QFileInfo;
 class CoreDumpsPlugin;
@@ -63,11 +62,11 @@ public:
     QString identifier() const override { return "coredumps"; }
     void start() override;
 
+protected:
+    void onTimerTick() override;
+
 private:
     friend class CoreDumpCleaner;
-    void work();
-    QTimer m_timer;
-    bool m_working = false;
 };
 
 #endif

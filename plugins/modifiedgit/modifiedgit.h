@@ -23,11 +23,8 @@
 #include "PluginInterface.h"
 
 #include <QObject>
-#include <QTimer>
 
 class QFileInfo;
-
-
 
 class ModifiedGitPlugin : public PluginInterface
 {
@@ -42,10 +39,8 @@ public:
     QString identifier() const override { return "modifiedgit"; }
     void start() override;
 
-private:
-    void work();
-    QTimer m_timer;
-    bool m_working = false;
+protected:
+    void onTimerTick() override;
 };
 
 #endif

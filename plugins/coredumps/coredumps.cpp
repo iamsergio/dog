@@ -73,7 +73,6 @@ CoreDumpCleaner::Action CoreDumpCleaner::actionForFile(const QFileInfo &file) co
 CoreDumpsPlugin::CoreDumpsPlugin()
 {
     m_timer.setInterval(chrono::hours(1));
-    connect(&m_timer, &QTimer::timeout, this, &CoreDumpsPlugin::work);
 }
 
 QString CoreDumpsPlugin::name() const
@@ -89,10 +88,10 @@ QString CoreDumpsPlugin::shortName() const
 void CoreDumpsPlugin::start()
 {
     m_timer.start();
-    work();
+    onTimerTick();
 }
 
-void CoreDumpsPlugin::work()
+void CoreDumpsPlugin::onTimerTick()
 {
     m_working = true;
     auto thread = new QThread();
