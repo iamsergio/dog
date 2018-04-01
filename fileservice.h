@@ -31,8 +31,9 @@ class FileService : public QObject
 public:
     explicit FileService(PluginInterface *parent);
     bool isCompressed(const QFileInfo &file) const;
-    bool compressFile(const QString &file);
+    bool compressFile(const QString &file, bool remove_original = true);
     bool removeFile(const QString &file);
+    bool tarDirectory(const QString &path);
 private:
     PluginInterface *const q;
 };
