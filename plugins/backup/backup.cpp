@@ -32,6 +32,7 @@ using namespace std;
 
 Backuper::Backuper(BackupPlugin *q, const BackupPlugin::BackupItem::List &items)
     : QObject(nullptr)
+    , m_encriptionCommand(qgetenv("DOG_ENCRYPT_COMMAND"))
     , m_backupItems(items)
     , q(q)
 {
@@ -39,8 +40,27 @@ Backuper::Backuper(BackupPlugin *q, const BackupPlugin::BackupItem::List &items)
 
 void Backuper::backup()
 {
+    if (m_encriptionCommand.isEmpty())
+        return;
+
     for (const auto &item : m_backupItems) {
-        if (!q->fileService()->tarDirectory(item.source)) {
+        QString tarFilename;
+        if (!q->fileService()->tarDirectory(item.source, tarFilename)) {
+            deleteLater();
+            return;
+        }
+
+        QString gpgFilename;
+        if (item.encrypt) {
+            if (!q->fileService()->encryptFile(tarFilename, gpgFilename)) {
+                deleteLater();
+                return;
+            }
+        } else {
+           gpgFilename = tarFilename;
+        }
+
+        if (!q->fileService()->uploadFile(gpgFilename, item.destination)) {
             deleteLater();
             return;
         }

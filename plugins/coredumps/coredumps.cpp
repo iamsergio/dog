@@ -40,13 +40,14 @@ void CoreDumpCleaner::clean()
     if (!coredumpDir.exists())
         return;
 
+    QString outfile;
     QFileInfoList fileInfos = coredumpDir.entryInfoList(QDir::Files);
     for (const QFileInfo &file : fileInfos) {
         Action action = actionForFile(file);
         if (action == Action_Delete)
             q->m_fileService->removeFile(file.absoluteFilePath());
         else if (action == Action_Compress)
-            q->m_fileService->compressFile(file.absoluteFilePath());
+            q->m_fileService->compressFile(file.absoluteFilePath(), outfile);
     }
 
     // We're done, delete the worker

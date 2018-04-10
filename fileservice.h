@@ -31,10 +31,11 @@ class FileService : public QObject
 public:
     explicit FileService(PluginInterface *parent);
     bool isCompressed(const QFileInfo &file) const;
-    bool compressFile(const QString &file, bool remove_original = true);
+    bool compressFile(const QString &file, QString &outFile, bool remove_original = true);
     bool removeFile(const QString &file);
-    bool tarDirectory(const QString &path);
-    bool encriptFile(const QString &file);
+    bool tarDirectory(const QString &path, QString &outputFileName);
+    bool encryptFile(const QString &file, QString &outFilename, bool remove_original = true);
+    bool uploadFile(const QString &file, const QString &destiny, bool remove_original = true);
 private:
     PluginInterface *const q;
 };

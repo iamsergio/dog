@@ -49,8 +49,10 @@ bool FileService::removeFile(const QString &file)
     return true;
 }
 
-bool FileService::tarDirectory(const QString &path)
+bool FileService::tarDirectory(const QString &path, QString &outputFileName)
 {
+    outputFileName.clear();
+
     emit q->log("FileService::tarDirectory: tarring" + path);
     QFileInfo info(path);
     if (!info.exists()) {
@@ -66,7 +68,7 @@ bool FileService::tarDirectory(const QString &path)
     QDir dir = info.dir();
     dir.cdUp();
 
-    const QString tar_filename = dir.path() + "/" + info.dir().dirName() + ".tar";;
+    const QString tar_filename = dir.path() + "/" + info.dir().dirName() + ".tar";
 
     bool success = QProcess::execute(QString("tar cvzf %1 %2").arg(tar_filename, path)) == 0;
     if (!success) {
@@ -74,31 +76,90 @@ bool FileService::tarDirectory(const QString &path)
         return false;
     }
 
-    if (!compressFile(tar_filename))
+    if (!compressFile(tar_filename, outputFileName))
         return false;
 
     return true;
 }
 
-bool FileService::encryptFile(const QString &file)
+bool FileService::encryptFile(const QString &file, QString &outFile, bool remove_original)
 {
-    static QString encryptionCommand = qgetenv("DOG_ENCRYPTION_COMMAND");
+    outFile.clear();
+    emit q->log("FileService::encryptFile: " + file);
+    static QString encryptionCommand = qgetenv("DOG_ENCRYPT_COMMAND");
     if (encryptionCommand.isEmpty())
         return false;
 
+    const QString gpgFilename = file + ".gpg";
+    if (QFile::exists(gpgFilename)) {
+        if (!QFile::remove(gpgFilename)) {
+            emit q->log(QString("FileService::encryptFile: failed to remove file %1").arg(gpgFilename));
+            return false;
+        }
+    }
+
+    const QString command = encryptionCommand.arg(file);
+
+    bool success = QProcess::execute(command) == 0;
+    if (!success) {
+        emit q->log(QString("FileService::encryptFile: error executing %1").arg(command));
+        return false;
+    }
+
+    success = !remove_original || removeFile(file);
+    if (!success)
+        return false;
+
+    outFile = gpgFilename;
     return true;
 }
 
-bool FileService::compressFile(const QString &file, bool remove_original)
+bool FileService::uploadFile(const QString &file, const QString &destiny, bool remove_original)
 {
+    emit q->log("FileService::uploadFile: " + file + " to " + destiny);
+
+    if (!QFile::exists(file)) {
+        q->log("FileService::uploadFile: File doesn't exist" + file);
+        return false;
+    }
+
+    const QString command = QString("scp %1 %2").arg(file, destiny);
+    qDebug() << "command: " << command;
+    bool success = QProcess::execute(command) == 0;
+    if (!success) {
+        q->log("FileService::uploadFile: File doesn't exist" + file);
+        qWarning() << "Error running" << command;
+        return false;
+    }
+
+    success = !remove_original || removeFile(file);
+    return true;
+}
+
+bool FileService::compressFile(const QString &file, QString &outFile, bool remove_original)
+{
+    outFile.clear();
     // Methods will already be running on a separate thread, no need for async.
     emit q->log("FileService::compressFile: compressing file " + file + "...");
-    bool success = QProcess::execute(QString("zstd %1").arg(file)) == 0;
 
+    const QString zstFile = file + ".zst";
+    if (QFile::exists(zstFile)) {
+        if (!QFile::remove(zstFile)) {
+            emit q->log(QString("FileService::compressFile: failed to remove file %1").arg(zstFile));
+            return false;
+        }
+    }
+
+    bool success = QProcess::execute(QString("zstd %1").arg(file)) == 0;
     if (!success) {
         emit q->log("FileService::compressFile: error compressing file");
         return false;
     }
 
-    return !remove_original || removeFile(file);
+    success = !remove_original || removeFile(file);
+    if (!success)
+        return false;
+
+    outFile = zstFile;
+    return true;
 }

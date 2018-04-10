@@ -66,8 +66,9 @@ public Q_SLOTS:
     void backup();
 
 private:
-     BackupPlugin::BackupItem::List m_backupItems;
-     BackupPlugin *const q;
+    const QString m_encriptionCommand;
+    BackupPlugin::BackupItem::List m_backupItems;
+    BackupPlugin *const q;
 };
 
 #endif
