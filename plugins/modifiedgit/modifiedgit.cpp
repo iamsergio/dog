@@ -27,8 +27,6 @@
 
 #include <chrono>
 
-Q_LOGGING_CATEGORY(modifiedgit, "dog.plugins.modifiedgit")
-
 using namespace std;
 
 ModifiedGitPlugin::ModifiedGitPlugin()

@@ -28,8 +28,6 @@
 
 #include <chrono>
 
-Q_LOGGING_CATEGORY(coredumps, "dog.plugins.coredumps")
-
 using namespace std;
 
 #define INTERVAL 3600 // 1 hour

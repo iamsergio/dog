@@ -27,8 +27,6 @@
 
 #include <chrono>
 
-Q_LOGGING_CATEGORY(builddircleaner, "dog.plugins.builddircleaner")
-
 //#define DRY_RUN
 
 using namespace std;
@@ -53,7 +51,7 @@ void BuildDirCleaner::cleanOne(const JobDescriptor &job)
         QFileInfo info (dir.absolutePath());
         QDateTime date = info.birthTime();
         if (!date.isValid()) {
-            qCWarning(builddircleaner) << QString("Unable to get creation date from %1").arg(dir.absolutePath());
+            qCWarning(q->category) << QString("Unable to get creation date from %1").arg(dir.absolutePath());
             continue;
         }
 
@@ -69,15 +67,15 @@ void BuildDirCleaner::cleanOne(const JobDescriptor &job)
             dirToDelete.removeRecursively();
 #endif
             if (success) {
-                qCWarning(builddircleaner) << QString("Removed %1").arg(dirToDelete.absolutePath());
+                qCWarning(q->category) << QString("Removed %1").arg(dirToDelete.absolutePath());
             } else {
-                qCWarning(builddircleaner) << QString("Unable to remove %1").arg(dirToDelete.absolutePath());
+                qCWarning(q->category) << QString("Unable to remove %1").arg(dirToDelete.absolutePath());
             }
         }
     }
 
     deleteLater();
-    qCDebug(builddircleaner) << "Finished";
+    qCDebug(q->category) << "Finished";
 }
 
 BuildDirCleanerPlugin::BuildDirCleanerPlugin()

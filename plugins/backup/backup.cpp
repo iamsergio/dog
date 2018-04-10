@@ -28,8 +28,6 @@
 
 #include <chrono>
 
-Q_LOGGING_CATEGORY(backup, "dog.plugins.backup")
-
 using namespace std;
 
 Backuper::Backuper(BackupPlugin *q, const BackupPlugin::BackupItem::List &items)
@@ -74,7 +72,7 @@ void Backuper::backup()
 BackupPlugin::BackupPlugin()
     : PluginInterface("backup", chrono::hours(24 * 2))
 {
-    qCDebug(backup) << "Created";
+    qCDebug(category) << "Created";
 }
 
 QString BackupPlugin::name() const
@@ -114,5 +112,5 @@ void BackupPlugin::loadJson()
         m_backupItems.append({name, source, destination, encrypt });
     }
 
-     qCDebug(backup) << QString("Loaded %1 backup items").arg(m_backupItems.size());
+     qCDebug(category) << QString("Loaded %1 backup items").arg(m_backupItems.size());
 }
