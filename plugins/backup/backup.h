@@ -25,6 +25,8 @@
 #include <QObject>
 #include <QVector>
 
+Q_DECLARE_LOGGING_CATEGORY(backup)
+
 class QFileInfo;
 
 class BackupPlugin : public PluginInterface
@@ -46,7 +48,6 @@ public:
     BackupPlugin();
     QString name() const override;
     QString shortName() const override;
-    QString identifier() const override { return "backup"; }
     void start() override;
 
 protected:

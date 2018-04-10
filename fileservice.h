@@ -21,6 +21,7 @@
 #define FILESERVICE_H
 
 #include <QObject>
+#include <QLoggingCategory>
 
 class QFileInfo;
 class PluginInterface;
@@ -38,6 +39,7 @@ public:
     bool uploadFile(const QString &file, const QString &destiny, bool remove_original = true);
 private:
     PluginInterface *const q;
+    const QLoggingCategory &category;
 };
 
 #endif

@@ -27,6 +27,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QThread>
+#include <QLoggingCategory>
 
 class FileService;
 
@@ -36,9 +37,11 @@ class PluginInterface : public QObject
 public:
     typedef QList<PluginInterface*> List;
 
-    PluginInterface();
-    PluginInterface(std::chrono::milliseconds timerInterval);
+    PluginInterface(const QByteArray &id);
+    PluginInterface(const QByteArray &id, std::chrono::milliseconds timerInterval);
     virtual ~PluginInterface() { }
+
+    QString identifier() const;
 
     bool isValid() const;
     bool isWorking() const;
@@ -47,13 +50,9 @@ public:
     //virtual void setEnabled(bool enabled) = 0;
     virtual QString name() const = 0;
     virtual QString shortName() const = 0;
-    virtual QString identifier() const = 0;
     virtual void start() = 0;
 
     FileService *fileService() const { return m_fileService; }
-
-signals:
-    void log(const QString &);
 
 protected:
     QString qrcPath() const;
@@ -81,6 +80,8 @@ private:
     Q_DISABLE_COPY(PluginInterface);
     class Private;
     Private *const d;
+public:
+    QLoggingCategory category;
 };
 
 Q_DECLARE_INTERFACE(PluginInterface, "smartins.dog.PluginInterface/v1.0")

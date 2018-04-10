@@ -34,5 +34,6 @@ Logger::Logger(QWidget *parent)
 void Logger::log(const QString &text)
 {
     QString now = QDateTime::currentDateTime().toString("dd-MM-yyyy HH:mm::ss");
+    QMutexLocker locker(&m_mutex);
     m_textEdit->setText(m_textEdit->toPlainText() + "[" + now + "] " +  text + "\n");
 }

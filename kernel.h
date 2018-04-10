@@ -33,8 +33,7 @@ public:
     Kernel();
     ~Kernel();
     bool isValid() const { return m_valid; }
-private Q_SLOTS:
-    void log(const QString &);
+    Logger *logger() const { return m_logger; }
 private:
     void loadPlugins();
     void startPlugins();

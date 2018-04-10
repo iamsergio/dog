@@ -25,6 +25,8 @@
 #include <QObject>
 #include <QVector>
 
+Q_DECLARE_LOGGING_CATEGORY(buiddircleaner)
+
 class QFileInfo;
 class BuildDirCleanerPlugin;
 
@@ -75,7 +77,6 @@ public:
     BuildDirCleanerPlugin();
     QString name() const override;
     QString shortName() const override;
-    QString identifier() const override { return "builddircleaner"; }
     void start() override;
 
 protected:

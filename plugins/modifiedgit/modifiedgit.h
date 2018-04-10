@@ -24,8 +24,9 @@
 
 #include <QObject>
 
-class QFileInfo;
+Q_DECLARE_LOGGING_CATEGORY(modifiedgit)
 
+class QFileInfo;
 class ModifiedGitPlugin : public PluginInterface
 {
     Q_OBJECT
@@ -36,7 +37,6 @@ public:
     ModifiedGitPlugin();
     QString name() const override;
     QString shortName() const override;
-    QString identifier() const override { return "modifiedgit"; }
     void start() override;
 
 protected:

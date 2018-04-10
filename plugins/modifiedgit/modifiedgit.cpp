@@ -27,10 +27,12 @@
 
 #include <chrono>
 
+Q_LOGGING_CATEGORY(modifiedgit, "dog.plugins.modifiedgit")
+
 using namespace std;
 
 ModifiedGitPlugin::ModifiedGitPlugin()
-    : PluginInterface(chrono::hours(1))
+    : PluginInterface("modifiedgit", chrono::hours(1))
 {
 }
 

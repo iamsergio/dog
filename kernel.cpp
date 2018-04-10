@@ -23,12 +23,48 @@
 
 #include <QSystemTrayIcon>
 #include <QtWidgets>
+#include <QPointer>
+#include <QTimer>
+
+static QtMessageHandler s_originalMessageHandler;
+static QPointer<Kernel> s_kernel;
+
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    s_originalMessageHandler(type, context, msg); // Goes to stderr
+
+    const QString typeStr = [type] {
+        switch (type) {
+        case QtDebugMsg:
+            return "DEBUG: ";
+        case QtWarningMsg:
+            return "WARNING: ";
+        case QtCriticalMsg:
+            return "CRITICAL: ";
+        case QtFatalMsg:
+            return "FATAL: ";
+        case QtInfoMsg:
+            return "INFO: ";
+        }
+        return "";
+    }();
+
+    const QString endmsg = typeStr + msg;
+
+    // And also to our widget logger. Use queued connection so it logs in main thread
+    QTimer::singleShot(0, s_kernel->logger(), [endmsg] {
+        s_kernel->logger()->log(endmsg);
+    });
+
+}
 
 Kernel::Kernel()
     : QObject()
     , m_systrayIcon(new QSystemTrayIcon(QIcon(), this))
     , m_logger(new Logger())
 {
+    s_kernel = this;
+    s_originalMessageHandler = qInstallMessageHandler(myMessageOutput);
     m_configPath = qgetenv("DOG_CONFIG_PATH");
     if (m_configPath.isEmpty() || !QFile::exists(m_configPath)) {
         qWarning() << "DOG_CONFIG_PATH needs to be set and point to a valid path";
@@ -46,13 +82,6 @@ Kernel::Kernel()
 Kernel::~Kernel()
 {
     delete m_logger;
-}
-
-void Kernel::log(const QString &text)
-{
-    auto plugin = qobject_cast<PluginInterface*>(sender());
-    Q_ASSERT(plugin);
-    m_logger->log(plugin->shortName() + " " + text);
 }
 
 void Kernel::setupTrayIcon()
@@ -88,7 +117,6 @@ void Kernel::loadPlugins()
         if (QObject *pluginObject = loader.instance()) {
             if (auto p = qobject_cast<PluginInterface*>(pluginObject)) {
                 m_plugins << p;
-                connect(p, &PluginInterface::log, this, &Kernel::log);
                 qDebug() << "Loadded " << fileName;
             } else {
                 qWarning() << "Failed to load " << pluginsDir.absoluteFilePath(fileName);
@@ -103,6 +131,6 @@ void Kernel::startPlugins()
 {
     for (auto p : m_plugins) {
         p->start();
-        m_logger->log(QString("%1 started").arg(p->shortName()));
+        qDebug() << QString("%1 started").arg(p->shortName());
     }
 }

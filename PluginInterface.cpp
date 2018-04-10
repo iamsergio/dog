@@ -30,12 +30,16 @@ using namespace std;
 class PluginInterface::Private
 {
 public:
-    Private(const QString &config_path)
+    Private(const QString &config_path, const QByteArray &id)
         : config_path(config_path)
+        , id(id)
+        , loggingCategoryName(QByteArray("dog.plugins." + id))
     {
     }
 
     const QString config_path;
+    const QString id;
+    const QByteArray loggingCategoryName;
     bool valid = true;
     bool working = false;
 };
@@ -50,18 +54,25 @@ static QVariantMap readJson(const QString &filename)
     return document.toVariant().toMap();
 }
 
-PluginInterface::PluginInterface()
+PluginInterface::PluginInterface(const QByteArray &id)
     : m_fileService(new FileService(this))
-    , d(new Private(qgetenv("DOG_CONFIG_PATH")))
+    , d(new Private(qgetenv("DOG_CONFIG_PATH"), id))
+    , category(d->loggingCategoryName.constData())
 {
     connect(&m_timer, &QTimer::timeout, this, &PluginInterface::work_impl);
 }
 
-PluginInterface::PluginInterface(chrono::milliseconds timerInterval)
+PluginInterface::PluginInterface(const QByteArray &id, chrono::milliseconds timerInterval)
     : m_fileService(new FileService(this))
-    , d(new Private(qgetenv("DOG_CONFIG_PATH")))
+    , d(new Private(qgetenv("DOG_CONFIG_PATH"), id))
+    , category(d->loggingCategoryName.constData())
 {
     m_timer.setInterval(timerInterval);
+}
+
+QString PluginInterface::identifier() const
+{
+    return d->id;
 }
 
 bool PluginInterface::isValid() const

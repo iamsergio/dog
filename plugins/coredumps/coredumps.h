@@ -21,8 +21,9 @@
 #define COREDUMPS_PLUGIN_H
 
 #include "PluginInterface.h"
-
 #include <QObject>
+
+Q_DECLARE_LOGGING_CATEGORY(coredumps)
 
 class QFileInfo;
 class CoreDumpsPlugin;
@@ -59,7 +60,6 @@ public:
     CoreDumpsPlugin();
     QString name() const override;
     QString shortName() const override;
-    QString identifier() const override { return "coredumps"; }
     void start() override;
 
 protected:

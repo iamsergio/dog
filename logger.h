@@ -21,6 +21,7 @@
 #define DOG_LOGGER_H
 
 #include <QWidget>
+#include <QMutex>
 
 class QTextEdit;
 class Logger : public QWidget
@@ -33,6 +34,7 @@ public slots:
     void log(const QString &text);
 private:
     QTextEdit *const m_textEdit;
+    QMutex m_mutex;
 };
 
 #endif
