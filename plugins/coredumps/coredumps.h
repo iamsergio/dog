@@ -23,8 +23,6 @@
 #include "PluginInterface.h"
 #include <QObject>
 
-Q_DECLARE_LOGGING_CATEGORY(coredumps)
-
 class QFileInfo;
 class CoreDumpsPlugin;
 class CoreDumpCleaner : public QObject

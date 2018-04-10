@@ -24,8 +24,6 @@
 
 #include <QObject>
 
-Q_DECLARE_LOGGING_CATEGORY(modifiedgit)
-
 class QFileInfo;
 class ModifiedGitPlugin : public PluginInterface
 {

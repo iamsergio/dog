@@ -25,8 +25,6 @@
 #include <QObject>
 #include <QVector>
 
-Q_DECLARE_LOGGING_CATEGORY(buiddircleaner)
-
 class QFileInfo;
 class BuildDirCleanerPlugin;
 
