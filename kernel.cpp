@@ -111,18 +111,30 @@ void Kernel::setupTrayIcon()
 
 void Kernel::loadPlugins()
 {
-    QDir pluginsDir = qApp->applicationDirPath() + "/plugins/";
-    foreach (const QString &fileName, pluginsDir.entryList(QDir::Files)) {
-        QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
-        if (QObject *pluginObject = loader.instance()) {
-            if (auto p = qobject_cast<PluginInterface*>(pluginObject)) {
-                m_plugins << p;
-                qDebug() << "Loadded " << fileName;
+    QStringList pluginPaths;
+    for (const QString &path : qApp->libraryPaths()) {
+        pluginPaths += QStringLiteral("%1/../lib/dog/plugins/").arg(path);
+        pluginPaths += QStringLiteral("%1/../lib64/dog/plugins/").arg(path);
+        pluginPaths += QStringLiteral("%1/../lib32/dog/plugins/").arg(path);
+    }
+
+    pluginPaths += QStringLiteral("%1/plugins/").arg(qApp->applicationDirPath());
+
+    for (const QString &pluginPath : pluginPaths) {
+        QDir pluginsDir = pluginPath;
+        qDebug() << "Looking in" << qApp->libraryPaths();
+        foreach (const QString &fileName, pluginsDir.entryList(QDir::Files)) {
+            QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
+            if (QObject *pluginObject = loader.instance()) {
+                if (auto p = qobject_cast<PluginInterface*>(pluginObject)) {
+                    m_plugins << p;
+                    qDebug() << "Loadded " << fileName;
+                } else {
+                    qWarning() << "Failed to load " << pluginsDir.absoluteFilePath(fileName);
+                }
             } else {
-                qWarning() << "Failed to load " << pluginsDir.absoluteFilePath(fileName);
+                qWarning() << "Failed to load" << pluginsDir.absoluteFilePath(fileName);
             }
-        } else {
-            qWarning() << "Failed to load" << pluginsDir.absoluteFilePath(fileName);
         }
     }
 }
