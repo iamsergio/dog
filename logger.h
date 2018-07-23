@@ -24,6 +24,8 @@
 #include <QMutex>
 
 class QTextEdit;
+class QTabWidget;
+
 class Logger : public QWidget
 {
     Q_OBJECT
@@ -31,9 +33,14 @@ public:
     explicit Logger(QWidget *parent = nullptr);
 
 public slots:
-    void log(const QString &text);
+    void log(const QString &text, const QString &category);
 private:
-    QTextEdit *const m_textEdit;
+
+    QTextEdit* textEditForCategory(const QString &category);
+    QTextEdit* createTab(const QString &category);
+
+    QTextEdit *m_defaultTextEdit = nullptr;
+    QTabWidget *const m_tabWidget;
     QMutex m_mutex;
 };
 

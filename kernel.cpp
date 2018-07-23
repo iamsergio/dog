@@ -50,10 +50,11 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }();
 
     const QString endmsg = typeStr + msg;
+    const QString cat = context.category;
 
     // And also to our widget logger. Use queued connection so it logs in main thread
-    QTimer::singleShot(0, s_kernel->logger(), [endmsg] {
-        s_kernel->logger()->log(endmsg);
+    QTimer::singleShot(0, s_kernel->logger(), [endmsg, cat] {
+        s_kernel->logger()->log(endmsg, cat);
     });
 
 }

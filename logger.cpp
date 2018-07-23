@@ -24,16 +24,44 @@
 
 Logger::Logger(QWidget *parent)
     : QWidget(parent)
-    , m_textEdit(new QTextEdit(this))
+    , m_tabWidget(new QTabWidget(this))
 {
     auto layout = new QVBoxLayout(this);
-    layout->addWidget(m_textEdit);
-    m_textEdit->setReadOnly(true);
+    layout->addWidget(m_tabWidget);
+
+    m_defaultTextEdit = createTab("dog");
 }
 
-void Logger::log(const QString &text)
+QTextEdit *Logger::textEditForCategory(const QString &category)
 {
+    if (category.isEmpty() || category == "default")
+        return m_defaultTextEdit;
+
+    for (int i = 0, e = m_tabWidget->count(); i < e; ++i) {
+        if (auto textEdit = qobject_cast<QTextEdit*>(m_tabWidget->widget(i))) {
+            if (m_tabWidget->tabText(i) == category)
+                return textEdit;
+        }
+    }
+
+    return createTab(category);
+}
+
+QTextEdit *Logger::createTab(const QString &category)
+{
+    auto textEdit = new QTextEdit(this);
+    textEdit->setReadOnly(true);
+    m_tabWidget->addTab(textEdit, category);
+    return textEdit;
+}
+
+void Logger::log(const QString &text, const QString &category)
+{
+    QString cat = category;
+    cat.replace("dog.plugins.", "");
+
     QString now = QDateTime::currentDateTime().toString("dd-MM-yyyy HH:mm::ss");
     QMutexLocker locker(&m_mutex);
-    m_textEdit->setText(m_textEdit->toPlainText() + "[" + now + "] " +  text + "\n");
+    auto textEdit = textEditForCategory(cat);
+    textEdit->setText(textEdit->toPlainText() + "[" + now + "] " +  text + "\n");
 }
