@@ -38,6 +38,7 @@ private:
     void loadPlugins();
     void startPlugins();
     void setupTrayIcon();
+    QStringList userSpeciciedPluginNames() const;
     QSystemTrayIcon *const m_systrayIcon;
     PluginInterface::List m_plugins;
     Logger *const m_logger;

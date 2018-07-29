@@ -110,6 +110,18 @@ void Kernel::setupTrayIcon()
     m_systrayIcon->show();
 }
 
+QStringList Kernel::userSpeciciedPluginNames() const
+{
+    QStringList names;
+    for (auto p : m_plugins) {
+        qDebug() << "checking" << p->identifier();
+        if (qApp->arguments().contains(p->identifier()))
+            names << p->identifier();
+    }
+
+    return names;
+}
+
 void Kernel::loadPlugins()
 {
     QStringList pluginPaths;
@@ -142,8 +154,11 @@ void Kernel::loadPlugins()
 
 void Kernel::startPlugins()
 {
+    const QStringList userSpecifiedPlugins = userSpeciciedPluginNames();
     for (auto p : m_plugins) {
-        p->start();
-        qDebug() << QString("%1 started").arg(p->shortName());
+        if (userSpecifiedPlugins.isEmpty() || userSpecifiedPlugins.contains(p->identifier())) {
+            p->start();
+            qDebug() << QString("%1 started").arg(p->shortName());
+        }
     }
 }
