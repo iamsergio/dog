@@ -49,10 +49,42 @@ void BuildDirCleaner::cleanAll()
     for (const JobDescriptor &job : m_jobs) {
         cleanOne(job);
     }
+    deleteLater();
     alreadyRunning = false;
 }
 
 void BuildDirCleaner::cleanOne(const JobDescriptor &job)
+{
+    if (job.method == QLatin1String("rm")) {
+        runRm(job);
+    } else if (job.method == QLatin1String("git-clean")) {
+        runGitClean(job);
+    }
+
+    qCDebug(q->category) << "Finished on" << job.path;
+}
+
+void BuildDirCleaner::runGitClean(const JobDescriptor &job)
+{
+    QProcess p;
+    QEventLoop loop;
+    p.setWorkingDirectory(job.path);
+    p.connect(&p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [&loop, this, &job] (int exitCode, QProcess::ExitStatus status) {
+        if (exitCode == 0) {
+            qCDebug(q->category) << QString("git cleaned %1").arg(job.path);
+        } else {
+            qCWarning(q->category) << QString("Unable to git clean %1").arg(job.path);
+        }
+        loop.quit();
+    });
+
+    qCDebug(q->category) << "Starting git clean -fdx on " << job.path;
+    p.start("git", {"clean", "-fdx"});
+    loop.exec();
+    qCDebug(q->category) << "Git clean finished";
+}
+
+void BuildDirCleaner::runRm(const JobDescriptor &job)
 {
     QDir dir(job.path);
     if (!job.pattern.isEmpty()) {
@@ -72,38 +104,15 @@ void BuildDirCleaner::cleanOne(const JobDescriptor &job)
         const int age = date.daysTo(now);
 
         if (age > 2) {
-            if (job.method == QLatin1String("rm") && false) {
-                QDir dirToDelete(job.path);
-                dirToDelete.cd(dirname);
-                if (dirToDelete.removeRecursively()) {
-                    qCDebug(q->category) << QString("Removed %1").arg(dirToDelete.absolutePath());
-                } else {
-                    qCWarning(q->category) << QString("Unable to remove %1").arg(dirToDelete.absolutePath());
-                }
-            } else if (job.method == QLatin1String("git-clean")) {
-                QProcess p;
-                QEventLoop loop;
-                p.setWorkingDirectory(job.path);
-                p.connect(&p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [&loop, this, &job] (int exitCode, QProcess::ExitStatus status) {
-                    qCDebug(q->category) << "Git clean finished with" << exitCode << status;
-                    if (exitCode == 0) {
-                        qCDebug(q->category) << QString("git cleaned %1").arg(job.path);
-                    } else {
-                        qCWarning(q->category) << QString("Unable to git clean %1").arg(job.path);
-                    }
-                    loop.quit();
-                });
-
-                qCDebug(q->category) << "Starting git clean -fdx on " << job.path;
-                p.start("git", {"clean", "-fdx"});
-                loop.exec();
-                qCDebug(q->category) << "Git clean finished";
+            QDir dirToDelete(job.path);
+            dirToDelete.cd(dirname);
+            if (dirToDelete.removeRecursively()) {
+                qCDebug(q->category) << QString("Removed %1").arg(dirToDelete.absolutePath());
+            } else {
+                qCWarning(q->category) << QString("Unable to remove %1").arg(dirToDelete.absolutePath());
             }
         }
     }
-
-    deleteLater();
-    qCDebug(q->category) << "Finished";
 }
 
 BuildDirCleanerPlugin::BuildDirCleanerPlugin()

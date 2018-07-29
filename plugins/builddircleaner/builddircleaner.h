@@ -51,6 +51,8 @@ public:
         , q(q) {}
     void cleanAll();
     void cleanOne(const JobDescriptor &);
+    void runGitClean(const JobDescriptor &);
+    void runRm(const JobDescriptor &);
 
 signals:
    void finished();
