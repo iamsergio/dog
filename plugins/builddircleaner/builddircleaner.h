@@ -33,6 +33,7 @@ struct JobDescriptor
     typedef QVector<JobDescriptor> List;
     QString path;
     QString pattern;
+    QString method;
 };
 
 class BuildDirCleaner : public QObject

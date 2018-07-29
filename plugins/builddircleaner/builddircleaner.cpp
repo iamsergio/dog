@@ -24,12 +24,17 @@
 #include <QDir>
 #include <QDateTime>
 #include <QProcess>
+#include <QEventLoop>
 
 #include <chrono>
 
-//#define DRY_RUN
-
 using namespace std;
+
+static bool isValidMethod(const QString &method)
+{
+    static QStringList methods = { "rm", "git-clean" };
+    return methods.contains(method);
+}
 
 void BuildDirCleaner::cleanAll()
 {
@@ -64,21 +69,35 @@ void BuildDirCleaner::cleanOne(const JobDescriptor &job)
             continue;
         }
 
-        QDir dirToDelete(job.path);
-        dirToDelete.cd(dirname);
-        int age = date.daysTo(now);
+        const int age = date.daysTo(now);
 
         if (age > 2) {
-            const bool success =
-#ifdef DRY_RUN
-            true;
-#else
-            dirToDelete.removeRecursively();
-#endif
-            if (success) {
-                qCWarning(q->category) << QString("Removed %1").arg(dirToDelete.absolutePath());
-            } else {
-                qCWarning(q->category) << QString("Unable to remove %1").arg(dirToDelete.absolutePath());
+            if (job.method == QLatin1String("rm") && false) {
+                QDir dirToDelete(job.path);
+                dirToDelete.cd(dirname);
+                if (dirToDelete.removeRecursively()) {
+                    qCDebug(q->category) << QString("Removed %1").arg(dirToDelete.absolutePath());
+                } else {
+                    qCWarning(q->category) << QString("Unable to remove %1").arg(dirToDelete.absolutePath());
+                }
+            } else if (job.method == QLatin1String("git-clean")) {
+                QProcess p;
+                QEventLoop loop;
+                p.setWorkingDirectory(job.path);
+                p.connect(&p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [&loop, this, &job] (int exitCode, QProcess::ExitStatus status) {
+                    qCDebug(q->category) << "Git clean finished with" << exitCode << status;
+                    if (exitCode == 0) {
+                        qCDebug(q->category) << QString("git cleaned %1").arg(job.path);
+                    } else {
+                        qCWarning(q->category) << QString("Unable to git clean %1").arg(job.path);
+                    }
+                    loop.quit();
+                });
+
+                qCDebug(q->category) << "Starting git clean -fdx on " << job.path;
+                p.start("git", {"clean", "-fdx"});
+                loop.exec();
+                qCDebug(q->category) << "Git clean finished";
             }
         }
     }
@@ -124,7 +143,13 @@ JobDescriptor::List BuildDirCleanerPlugin::loadJson() const
         QVariantMap dirMap = dirV.toMap();
         QString dir = dirMap.value("dir").toString();
         QString pattern = dirMap.value("pattern").toString();
-        jobs << JobDescriptor { dir, pattern };
+        QString method = dirMap.value("method", "rm").toString();
+
+        if (isValidMethod(method)) {
+            jobs << JobDescriptor { dir, pattern, method };
+        } else {
+           qCWarning(category) << "Invalid method" << method;
+        }
     }
 
     return jobs;
