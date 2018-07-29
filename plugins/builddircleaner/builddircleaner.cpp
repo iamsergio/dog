@@ -30,12 +30,6 @@
 
 using namespace std;
 
-static bool isValidMethod(const QString &method)
-{
-    static QStringList methods = { "rm", "git-clean" };
-    return methods.contains(method);
-}
-
 void BuildDirCleaner::cleanAll()
 {
     static bool alreadyRunning = false;
@@ -55,10 +49,13 @@ void BuildDirCleaner::cleanAll()
 
 void BuildDirCleaner::cleanOne(const JobDescriptor &job)
 {
-    if (job.method == QLatin1String("rm")) {
-        runRm(job);
-    } else if (job.method == QLatin1String("git-clean")) {
+    if (job.method == JobDescriptor::Method_RmChilds) {
+        runRmChilds(job);
+    } else if (job.method == JobDescriptor::Method_GitClean) {
         runGitClean(job);
+    } else if (job.method == JobDescriptor::Method_Rm) {
+        QDir dirToDelete(job.path);
+        runRm(dirToDelete);
     }
 
     qCDebug(q->category) << "Finished on" << job.path;
@@ -84,7 +81,7 @@ void BuildDirCleaner::runGitClean(const JobDescriptor &job)
     qCDebug(q->category) << "Git clean finished";
 }
 
-void BuildDirCleaner::runRm(const JobDescriptor &job)
+void BuildDirCleaner::runRmChilds(const JobDescriptor &job)
 {
     QDir dir(job.path);
     if (!job.pattern.isEmpty()) {
@@ -92,25 +89,34 @@ void BuildDirCleaner::runRm(const JobDescriptor &job)
     }
 
     QStringList dirs = dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
-    const QDateTime now = QDateTime::currentDateTime();
     for (const QString &dirname : dirs) {
-        QFileInfo info (dir.absolutePath());
-        QDateTime date = info.birthTime();
-        if (!date.isValid()) {
-            qCWarning(q->category) << QString("Unable to get creation date from %1").arg(dir.absolutePath());
-            continue;
-        }
+        QDir dirToDelete(job.path);
+        dirToDelete.cd(dirname);
+        runRm(dirToDelete);
+    }
+}
 
-        const int age = date.daysTo(now);
+void BuildDirCleaner::runRm(QDir &dirToDelete)
+{
+    const QDateTime now = QDateTime::currentDateTime();
+    QFileInfo info(dirToDelete.absolutePath());
+    if (!info.exists())
+        return;
 
-        if (age > 2) {
-            QDir dirToDelete(job.path);
-            dirToDelete.cd(dirname);
-            if (dirToDelete.removeRecursively()) {
-                qCDebug(q->category) << QString("Removed %1").arg(dirToDelete.absolutePath());
-            } else {
-                qCWarning(q->category) << QString("Unable to remove %1").arg(dirToDelete.absolutePath());
-            }
+    QDateTime date = info.birthTime();
+
+    if (!date.isValid()) {
+        qCWarning(q->category) << QString("Unable to get creation date from %1").arg(dirToDelete.absolutePath());
+        return;
+    }
+
+    const int age = date.daysTo(now);
+
+    if (age > 2) {
+        if (dirToDelete.removeRecursively()) {
+            qCDebug(q->category) << QString("Removed %1").arg(dirToDelete.absolutePath());
+        } else {
+            qCWarning(q->category) << QString("Unable to remove %1").arg(dirToDelete.absolutePath());
         }
     }
 }
@@ -152,12 +158,13 @@ JobDescriptor::List BuildDirCleanerPlugin::loadJson() const
         QVariantMap dirMap = dirV.toMap();
         QString dir = dirMap.value("dir").toString();
         QString pattern = dirMap.value("pattern").toString();
-        QString method = dirMap.value("method", "rm").toString();
+        QString methodStr = dirMap.value("method").toString();
+        JobDescriptor::Method method = JobDescriptor::methodFromString(methodStr);
 
-        if (isValidMethod(method)) {
-            jobs << JobDescriptor { dir, pattern, method };
+        if (method == JobDescriptor::Method_None) {
+            qCWarning(category) << "Invalid method" << method;
         } else {
-           qCWarning(category) << "Invalid method" << method;
+            jobs << JobDescriptor { dir, pattern, method };
         }
     }
 

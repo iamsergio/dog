@@ -24,6 +24,7 @@
 
 #include <QObject>
 #include <QVector>
+#include <QDir>
 
 class QFileInfo;
 class BuildDirCleanerPlugin;
@@ -31,9 +32,28 @@ class BuildDirCleanerPlugin;
 struct JobDescriptor
 {
     typedef QVector<JobDescriptor> List;
+
+    enum Method {
+        Method_None = 0,
+        Method_Rm,
+        Method_RmChilds,
+        Method_GitClean
+    };
+
     QString path;
     QString pattern;
-    QString method;
+    Method method;
+
+    static Method methodFromString(const QString &s) {
+        if (s == "rm-childs")
+            return Method_RmChilds;
+        if (s == "rm")
+            return Method_Rm;
+        if (s == "git-clean")
+            return Method_GitClean;
+
+        return Method_None;
+    }
 };
 
 class BuildDirCleaner : public QObject
@@ -52,7 +72,8 @@ public:
     void cleanAll();
     void cleanOne(const JobDescriptor &);
     void runGitClean(const JobDescriptor &);
-    void runRm(const JobDescriptor &);
+    void runRmChilds(const JobDescriptor &);
+    void runRm(QDir &dir);
 
 signals:
    void finished();
