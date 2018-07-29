@@ -33,9 +33,18 @@ using namespace std;
 
 void BuildDirCleaner::cleanAll()
 {
+    static bool alreadyRunning = false;
+
+    if (alreadyRunning) {
+        qCWarning(q->category) << "cleanAll already running, bailing out";
+        return;
+    }
+
+    alreadyRunning = true;
     for (const JobDescriptor &job : m_jobs) {
         cleanOne(job);
     }
+    alreadyRunning = false;
 }
 
 void BuildDirCleaner::cleanOne(const JobDescriptor &job)
