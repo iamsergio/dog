@@ -29,5 +29,12 @@ int main(int argc, char**argv)
     if (!kernel.isValid())
         return 1;
 
+    if (app.arguments().contains("--list")) {
+        kernel.listPlugins();
+        return 0;
+    } else {
+        kernel.start();
+    }
+
     return app.exec();
 }

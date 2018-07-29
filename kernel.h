@@ -34,6 +34,8 @@ public:
     ~Kernel();
     bool isValid() const { return m_valid; }
     Logger *logger() const { return m_logger; }
+    void start();
+    void listPlugins();
 private:
     void loadPlugins();
     void startPlugins();

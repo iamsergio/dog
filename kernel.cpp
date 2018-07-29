@@ -74,8 +74,7 @@ Kernel::Kernel()
     }
 
     loadPlugins();
-    startPlugins();
-    setupTrayIcon();
+
 
     m_logger->resize(600, 600);
 }
@@ -83,6 +82,19 @@ Kernel::Kernel()
 Kernel::~Kernel()
 {
     delete m_logger;
+}
+
+void Kernel::start()
+{
+    startPlugins();
+    setupTrayIcon();
+}
+
+void Kernel::listPlugins()
+{
+    qDebug() << "Available plugins:";
+    for (auto p : m_plugins)
+         qDebug() << "    " << p->identifier();
 }
 
 void Kernel::setupTrayIcon()
@@ -114,7 +126,6 @@ QStringList Kernel::userSpeciciedPluginNames() const
 {
     QStringList names;
     for (auto p : m_plugins) {
-        qDebug() << "checking" << p->identifier();
         if (qApp->arguments().contains(p->identifier()))
             names << p->identifier();
     }
