@@ -54,6 +54,8 @@ public:
 
     FileService *fileService() const { return m_fileService; }
 
+    void emitVisualWarning(const QString &text);
+
 protected:
     QString qrcPath() const;
     QString configFile() const;
@@ -76,6 +78,8 @@ protected:
 
     FileService *const m_fileService;
     QTimer m_timer;
+Q_SIGNALS:
+    void visualWarning(const QString &text);
 private:
     Q_DISABLE_COPY(PluginInterface);
     class Private;
@@ -83,6 +87,25 @@ private:
 public:
     QLoggingCategory category;
 };
+
+template <typename T>
+class WorkerObject : public QObject
+{
+public:
+    explicit WorkerObject(const typename T::List &jobDescriptors, PluginInterface *);
+    virtual void work() = 0;
+protected:
+    PluginInterface *const m_plugin;
+    const typename T::List m_jobDescriptors;
+};
+
+template <typename T>
+WorkerObject<T>::WorkerObject(const typename T::List &jobDescriptors, PluginInterface *plugin)
+    : QObject(plugin)
+    , m_plugin(plugin)
+    , m_jobDescriptors(jobDescriptors)
+{
+}
 
 Q_DECLARE_INTERFACE(PluginInterface, "smartins.dog.PluginInterface/v1.0")
 

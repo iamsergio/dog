@@ -85,6 +85,12 @@ bool PluginInterface::isWorking() const
     return d->working;
 }
 
+void PluginInterface::emitVisualWarning(const QString &text)
+{
+    qCDebug(category) << text;
+    emit visualWarning(text);
+}
+
 QString PluginInterface::qrcPath() const
 {
     return QString(":/%1/").arg(shortName());
