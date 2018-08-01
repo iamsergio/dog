@@ -97,7 +97,7 @@ QString CoreDumpsPlugin::shortName() const
     return "CoreDumps";
 }
 
-void CoreDumpsPlugin::start()
+void CoreDumpsPlugin::start_impl()
 {
     m_timer.start();
     work();

@@ -161,7 +161,7 @@ QString BuildDirCleanerPlugin::shortName() const
     return "BuildDirCleaner";
 }
 
-void BuildDirCleanerPlugin::start()
+void BuildDirCleanerPlugin::start_impl()
 {
     m_timer.start();
     work();

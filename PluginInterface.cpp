@@ -85,6 +85,12 @@ bool PluginInterface::isWorking() const
     return d->working;
 }
 
+void PluginInterface::start()
+{
+    qCDebug(category) << "Started";
+    start_impl();
+}
+
 void PluginInterface::emitVisualWarning(const QString &text)
 {
     qCWarning(category) << text;

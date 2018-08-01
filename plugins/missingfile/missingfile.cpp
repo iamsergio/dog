@@ -44,7 +44,7 @@ QString MissingFilePlugin::shortName() const
     return "MissingFile";
 }
 
-void MissingFilePlugin::start()
+void MissingFilePlugin::start_impl()
 {
     m_timer.start();
     work();

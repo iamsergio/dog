@@ -44,7 +44,7 @@ QString ModifiedGitPlugin::shortName() const
     return "ModifiedGit";
 }
 
-void ModifiedGitPlugin::start()
+void ModifiedGitPlugin::start_impl()
 {
     m_timer.start();
     work();

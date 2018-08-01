@@ -50,7 +50,8 @@ public:
     //virtual void setEnabled(bool enabled) = 0;
     virtual QString name() const = 0;
     virtual QString shortName() const = 0;
-    virtual void start() = 0;
+    void start();
+    virtual void start_impl() = 0;
 
     FileService *fileService() const { return m_fileService; }
 

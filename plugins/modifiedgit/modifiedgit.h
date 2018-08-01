@@ -35,7 +35,7 @@ public:
     ModifiedGitPlugin();
     QString name() const override;
     QString shortName() const override;
-    void start() override;
+    void start_impl() override;
 
 protected:
     void work_impl() override;

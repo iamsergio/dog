@@ -84,7 +84,7 @@ QString BackupPlugin::shortName() const
     return "BackupPlugin";
 }
 
-void BackupPlugin::start()
+void BackupPlugin::start_impl()
 {
     loadJson();
     m_timer.start();
