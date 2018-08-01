@@ -115,6 +115,7 @@ QVariantMap PluginInterface::readConfig() const
 void PluginInterface::work()
 {
     Q_ASSERT(!isWorking());
+    qCDebug(category) << "Work started";
     d->working = true;
     work_impl();
     d->working = false;
