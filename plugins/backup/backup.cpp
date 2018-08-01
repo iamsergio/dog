@@ -72,7 +72,6 @@ void Backuper::backup()
 BackupPlugin::BackupPlugin()
     : PluginInterface("backup", chrono::hours(24 * 2))
 {
-    qCDebug(category) << "Created";
 }
 
 QString BackupPlugin::name() const
