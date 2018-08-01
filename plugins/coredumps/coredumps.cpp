@@ -34,7 +34,7 @@ using namespace std;
 
 const char *const s_coredump_folder = "/data/cores/";
 
-void CoreDumpCleaner::clean()
+void CoreDumpCleaner::work()
 {
     QDir coredumpDir(s_coredump_folder);
     if (!coredumpDir.exists())
@@ -45,13 +45,24 @@ void CoreDumpCleaner::clean()
     for (const QFileInfo &file : fileInfos) {
         Action action = actionForFile(file);
         if (action == Action_Delete)
-            q->m_fileService->removeFile(file.absoluteFilePath());
+            m_plugin->m_fileService->removeFile(file.absoluteFilePath());
         else if (action == Action_Compress)
-            q->m_fileService->compressFile(file.absoluteFilePath(), outfile);
+            m_plugin->m_fileService->compressFile(file.absoluteFilePath(), outfile);
     }
 
     // We're done, delete the worker
     deleteLater();
+}
+
+void CoreDumpCleaner::loadJobDescriptors()
+{
+
+}
+
+CoreDumpCleaner::CoreDumpCleaner(CoreDumpsPlugin *plugin)
+    : WorkerObject(plugin)
+{
+
 }
 
 CoreDumpCleaner::Action CoreDumpCleaner::actionForFile(const QFileInfo &file) const
@@ -65,7 +76,7 @@ CoreDumpCleaner::Action CoreDumpCleaner::actionForFile(const QFileInfo &file) co
     if (ageInDays > 7)
         return Action_Delete;
 
-    if (ageInHours > 5 && !q->m_fileService->isCompressed(file))
+    if (ageInHours > 5 && !m_plugin->m_fileService->isCompressed(file))
         return Action_Compress;
 
     return Action_None;
@@ -95,5 +106,6 @@ void CoreDumpsPlugin::start()
 void CoreDumpsPlugin::work_impl()
 {
     auto worker = new CoreDumpCleaner(this);
-    startInWorkerThread(worker, &CoreDumpCleaner::clean);
+    worker->loadJobDescriptors();
+    startInWorkerThread(worker, &CoreDumpCleaner::work);
 }

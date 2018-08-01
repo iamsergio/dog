@@ -57,7 +57,7 @@ public:
     void emitVisualWarning(const QString &text);
     QVariantMap readConfig() const;
 
-protected:
+public:
     QString qrcPath() const;
     QString configFile() const;
 

@@ -23,9 +23,16 @@
 #include "PluginInterface.h"
 #include <QObject>
 
+namespace CoreDumpCleanerNS {
+struct JobDescriptor {
+    // Nothing needed yet
+    typedef QVector<JobDescriptor> List;
+};
+}
+
 class QFileInfo;
 class CoreDumpsPlugin;
-class CoreDumpCleaner : public QObject
+class CoreDumpCleaner : public WorkerObject<CoreDumpCleanerNS::JobDescriptor>
 {
    Q_OBJECT
 public:
@@ -34,10 +41,11 @@ public:
         Action_Compress,
         Action_Delete
     };
-    CoreDumpCleaner(CoreDumpsPlugin *q)
-        : QObject()
-        , q(q) {}
-    void clean();
+
+    explicit CoreDumpCleaner(CoreDumpsPlugin *plugin);
+
+    void work() override;
+    void loadJobDescriptors() override;
 
 signals:
    void finished();
@@ -45,7 +53,6 @@ signals:
 private:
    Q_ENUM(Action)
    Action actionForFile(const QFileInfo &file) const;
-   CoreDumpsPlugin *const q;
 };
 
 class CoreDumpsPlugin : public PluginInterface
