@@ -94,7 +94,19 @@ void Kernel::listPlugins()
 {
     qDebug() << "Available plugins:";
     for (auto p : m_plugins)
-         qDebug() << "    " << p->identifier();
+        qDebug() << "    " << p->identifier();
+}
+
+QWidget *Kernel::window() const
+{
+    const auto widgets = qApp->topLevelWidgets();
+    return widgets.isEmpty() ? nullptr : widgets.first();
+}
+
+void Kernel::onVisualWarning(const QString &text)
+{
+    // For now a message box
+    QMessageBox::warning(window(), "warning", text);
 }
 
 void Kernel::setupTrayIcon()
@@ -152,6 +164,7 @@ void Kernel::loadPlugins()
             if (QObject *pluginObject = loader.instance()) {
                 if (auto p = qobject_cast<PluginInterface*>(pluginObject)) {
                     m_plugins << p;
+                    connect(p, &PluginInterface::visualWarning, this, &Kernel::onVisualWarning);
                     qDebug() << "Loadded " << fileName;
                 } else {
                     qWarning() << "Failed to load " << pluginsDir.absoluteFilePath(fileName);

@@ -36,7 +36,9 @@ public:
     Logger *logger() const { return m_logger; }
     void start();
     void listPlugins();
+    QWidget *window() const;
 private:
+    void onVisualWarning(const QString &text);
     void loadPlugins();
     void startPlugins();
     void setupTrayIcon();
