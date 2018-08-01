@@ -30,17 +30,23 @@
 
 using namespace std;
 
-void BuildDirCleaner::cleanAll()
+BuildDirCleaner::BuildDirCleaner(const JobDescriptor::List &jobDescriptor, BuildDirCleanerPlugin *plugin)
+    : WorkerObject(jobDescriptor, plugin)
+{
+
+}
+
+void BuildDirCleaner::work()
 {
     static bool alreadyRunning = false;
 
     if (alreadyRunning) {
-        qCWarning(q->category) << "cleanAll already running, bailing out";
+        qCWarning(m_plugin->category) << "work() already running, bailing out";
         return;
     }
 
     alreadyRunning = true;
-    for (const JobDescriptor &job : m_jobs) {
+    for (const JobDescriptor &job : m_jobDescriptors) {
         cleanOne(job);
     }
     deleteLater();
@@ -58,7 +64,7 @@ void BuildDirCleaner::cleanOne(const JobDescriptor &job)
         runRm(dirToDelete);
     }
 
-    qCDebug(q->category) << "Finished on" << job.path;
+    qCDebug(m_plugin->category) << "Finished on" << job.path;
 }
 
 void BuildDirCleaner::runGitClean(const JobDescriptor &job)
@@ -68,17 +74,17 @@ void BuildDirCleaner::runGitClean(const JobDescriptor &job)
     p.setWorkingDirectory(job.path);
     p.connect(&p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [&loop, this, &job] (int exitCode, QProcess::ExitStatus status) {
         if (exitCode == 0) {
-            qCDebug(q->category) << QString("git cleaned %1").arg(job.path);
+            qCDebug(m_plugin->category) << QString("git cleaned %1").arg(job.path);
         } else {
-            qCWarning(q->category) << QString("Unable to git clean %1").arg(job.path);
+            qCWarning(m_plugin->category) << QString("Unable to git clean %1").arg(job.path);
         }
         loop.quit();
     });
 
-    qCDebug(q->category) << "Starting git clean -fdx on " << job.path;
+    qCDebug(m_plugin->category) << "Starting git clean -fdx on " << job.path;
     p.start("git", {"clean", "-fdx"});
     loop.exec();
-    qCDebug(q->category) << "Git clean finished";
+    qCDebug(m_plugin->category) << "Git clean finished";
 }
 
 void BuildDirCleaner::runRmChilds(const JobDescriptor &job)
@@ -106,7 +112,7 @@ void BuildDirCleaner::runRm(QDir &dirToDelete)
     QDateTime date = info.birthTime();
 
     if (!date.isValid()) {
-        qCWarning(q->category) << QString("Unable to get creation date from %1").arg(dirToDelete.absolutePath());
+        qCWarning(m_plugin->category) << QString("Unable to get creation date from %1").arg(dirToDelete.absolutePath());
         return;
     }
 
@@ -114,9 +120,9 @@ void BuildDirCleaner::runRm(QDir &dirToDelete)
 
     if (age > 2) {
         if (dirToDelete.removeRecursively()) {
-            qCDebug(q->category) << QString("Removed %1").arg(dirToDelete.absolutePath());
+            qCDebug(m_plugin->category) << QString("Removed %1").arg(dirToDelete.absolutePath());
         } else {
-            qCWarning(q->category) << QString("Unable to remove %1").arg(dirToDelete.absolutePath());
+            qCWarning(m_plugin->category) << QString("Unable to remove %1").arg(dirToDelete.absolutePath());
         }
     }
 }
@@ -146,7 +152,7 @@ void BuildDirCleanerPlugin::start()
 void BuildDirCleanerPlugin::work_impl()
 {
     auto worker = new BuildDirCleaner(m_jobs, this);
-    startInWorkerThread(worker, &BuildDirCleaner::cleanAll);
+    startInWorkerThread(worker, &BuildDirCleaner::work);
 }
 
 JobDescriptor::List BuildDirCleanerPlugin::loadJson() const

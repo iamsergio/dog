@@ -56,7 +56,7 @@ struct JobDescriptor
     }
 };
 
-class BuildDirCleaner : public QObject
+class BuildDirCleaner : public WorkerObject<JobDescriptor>
 {
    Q_OBJECT
 public:
@@ -65,11 +65,8 @@ public:
         Action_Compress,
         Action_Delete
     };
-    BuildDirCleaner(const JobDescriptor::List &jobs, BuildDirCleanerPlugin *q)
-        : QObject()
-        , m_jobs(jobs)
-        , q(q) {}
-    void cleanAll();
+    explicit BuildDirCleaner(const JobDescriptor::List &jobDescriptor, BuildDirCleanerPlugin *plugin);
+    void work() override;
     void cleanOne(const JobDescriptor &);
     void runGitClean(const JobDescriptor &);
     void runRmChilds(const JobDescriptor &);
@@ -84,8 +81,6 @@ private:
    void compressFile(const QString &file);
    void removeFile(const QString &file);
    Action actionForFile(const QFileInfo &file) const;*/
-   const JobDescriptor::List m_jobs;
-   BuildDirCleanerPlugin *const q;
 };
 
 
