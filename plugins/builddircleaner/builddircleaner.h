@@ -65,8 +65,9 @@ public:
         Action_Compress,
         Action_Delete
     };
-    explicit BuildDirCleaner(const JobDescriptor::List &jobDescriptor, BuildDirCleanerPlugin *plugin);
+    explicit BuildDirCleaner(BuildDirCleanerPlugin *plugin);
     void work() override;
+    void loadJobDescriptors() override;
     void cleanOne(const JobDescriptor &);
     void runGitClean(const JobDescriptor &);
     void runRmChilds(const JobDescriptor &);
@@ -98,10 +99,6 @@ public:
 
 protected:
     void work_impl() override;
-
-private:
-    JobDescriptor::List loadJson() const;
-    const JobDescriptor::List m_jobs;
 };
 
 #endif

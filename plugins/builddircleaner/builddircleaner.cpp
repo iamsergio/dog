@@ -30,10 +30,9 @@
 
 using namespace std;
 
-BuildDirCleaner::BuildDirCleaner(const JobDescriptor::List &jobDescriptor, BuildDirCleanerPlugin *plugin)
-    : WorkerObject(jobDescriptor, plugin)
+BuildDirCleaner::BuildDirCleaner(BuildDirCleanerPlugin *plugin)
+    : WorkerObject(plugin)
 {
-
 }
 
 void BuildDirCleaner::work()
@@ -51,6 +50,26 @@ void BuildDirCleaner::work()
     }
     deleteLater();
     alreadyRunning = false;
+}
+
+void BuildDirCleaner::loadJobDescriptors()
+{
+    m_jobDescriptors.clear();
+    QVariantMap json = m_plugin->readConfig();
+    const QVariantList dirs = json.value("dirs").toList();
+    for (const QVariant &dirV : dirs) {
+        QVariantMap dirMap = dirV.toMap();
+        QString dir = dirMap.value("dir").toString();
+        QString pattern = dirMap.value("pattern").toString();
+        QString methodStr = dirMap.value("method").toString();
+        JobDescriptor::Method method = JobDescriptor::methodFromString(methodStr);
+
+        if (method == JobDescriptor::Method_None) {
+            qCWarning(m_plugin->category) << "Invalid method" << method;
+        } else {
+            m_jobDescriptors << JobDescriptor { dir, pattern, method };
+        }
+    }
 }
 
 void BuildDirCleaner::cleanOne(const JobDescriptor &job)
@@ -129,7 +148,6 @@ void BuildDirCleaner::runRm(QDir &dirToDelete)
 
 BuildDirCleanerPlugin::BuildDirCleanerPlugin()
     : PluginInterface("builddircleaner", chrono::hours(1))
-    , m_jobs(loadJson())
 {
 }
 
@@ -151,28 +169,7 @@ void BuildDirCleanerPlugin::start()
 
 void BuildDirCleanerPlugin::work_impl()
 {
-    auto worker = new BuildDirCleaner(m_jobs, this);
+    auto worker = new BuildDirCleaner(this);
+    worker->loadJobDescriptors();
     startInWorkerThread(worker, &BuildDirCleaner::work);
-}
-
-JobDescriptor::List BuildDirCleanerPlugin::loadJson() const
-{
-    JobDescriptor::List jobs;
-    QVariantMap json = readConfig();
-    const QVariantList dirs = json.value("dirs").toList();
-    for (const QVariant &dirV : dirs) {
-        QVariantMap dirMap = dirV.toMap();
-        QString dir = dirMap.value("dir").toString();
-        QString pattern = dirMap.value("pattern").toString();
-        QString methodStr = dirMap.value("method").toString();
-        JobDescriptor::Method method = JobDescriptor::methodFromString(methodStr);
-
-        if (method == JobDescriptor::Method_None) {
-            qCWarning(category) << "Invalid method" << method;
-        } else {
-            jobs << JobDescriptor { dir, pattern, method };
-        }
-    }
-
-    return jobs;
 }

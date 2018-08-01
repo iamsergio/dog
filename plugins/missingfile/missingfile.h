@@ -41,23 +41,23 @@ class MissingFilePlugin : public PluginInterface
 
 public:
     MissingFilePlugin();
-    MissingFile::JobDescriptor::List loadJson() const;
     QString name() const override;
     QString shortName() const override;
     void start() override;
 
 protected:
     void work_impl() override;
-private:
-    const MissingFile::JobDescriptor::List m_jobDescriptors;
 };
 
 class MissingFileWorker : public WorkerObject<MissingFile::JobDescriptor>
 {
    Q_OBJECT
 public:
-    explicit MissingFileWorker(const MissingFile::JobDescriptor::List &, PluginInterface*);
+    explicit MissingFileWorker(PluginInterface*);
     void work() override;
+    void loadJobDescriptors() override;
+private:
+    MissingFile::JobDescriptor::List m_jobDescriptors;
 };
 
 #endif

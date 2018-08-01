@@ -55,11 +55,11 @@ public:
     FileService *fileService() const { return m_fileService; }
 
     void emitVisualWarning(const QString &text);
+    QVariantMap readConfig() const;
 
 protected:
     QString qrcPath() const;
     QString configFile() const;
-    QVariantMap readConfig() const;
 
     template <typename Obj, typename Slot>
     QThread *startInWorkerThread(Obj *worker, Slot slot)
@@ -92,18 +92,18 @@ template <typename T>
 class WorkerObject : public QObject
 {
 public:
-    explicit WorkerObject(const typename T::List &jobDescriptors, PluginInterface *);
+    explicit WorkerObject(PluginInterface *);
     virtual void work() = 0;
+    virtual void loadJobDescriptors() = 0;
 protected:
     PluginInterface *const m_plugin;
-    const typename T::List m_jobDescriptors;
+    typename T::List m_jobDescriptors;
 };
 
 template <typename T>
-WorkerObject<T>::WorkerObject(const typename T::List &jobDescriptors, PluginInterface *plugin)
+WorkerObject<T>::WorkerObject(PluginInterface *plugin)
     : QObject(plugin)
     , m_plugin(plugin)
-    , m_jobDescriptors(jobDescriptors)
 {
 }
 

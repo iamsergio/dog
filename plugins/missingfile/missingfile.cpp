@@ -31,24 +31,7 @@ using namespace std;
 
 MissingFilePlugin::MissingFilePlugin()
     : PluginInterface("missingfile", chrono::hours(1))
-    , m_jobDescriptors(loadJson())
 {
-}
-
-MissingFile::JobDescriptor::List MissingFilePlugin::loadJson() const
-{
-    MissingFile::JobDescriptor::List jobs;
-    QVariantMap json = readConfig();
-    const QVariantList dirs = json.value("files").toList();
-    for (const QVariant &fileV : dirs) {
-        QVariantMap fileMap = fileV.toMap();
-        QString path = fileMap.value("path").toString();
-        if (!path.isEmpty()) {
-            jobs << MissingFile::JobDescriptor{ path };
-        }
-    }
-
-    return jobs;
 }
 
 QString MissingFilePlugin::name() const
@@ -69,12 +52,13 @@ void MissingFilePlugin::start()
 
 void MissingFilePlugin::work_impl()
 {
-    auto worker = new MissingFileWorker(m_jobDescriptors, this);
+    auto worker = new MissingFileWorker(this);
+    worker->loadJobDescriptors();
     startInWorkerThread(worker, &MissingFileWorker::work);
 }
 
-MissingFileWorker::MissingFileWorker(const MissingFile::JobDescriptor::List &jobDescriptors, PluginInterface *plugin)
-    : WorkerObject(jobDescriptors, plugin)
+MissingFileWorker::MissingFileWorker(PluginInterface *plugin)
+    : WorkerObject(plugin)
 {
 }
 
@@ -83,6 +67,19 @@ void MissingFileWorker::work()
     for (auto &descriptor : m_jobDescriptors) {
         if (!QFile::exists(descriptor.path)) {
             m_plugin->emitVisualWarning(QStringLiteral("File does not exist %1").arg(descriptor.path));
+        }
+    }
+}
+
+void MissingFileWorker::loadJobDescriptors()
+{
+    QVariantMap json = m_plugin->readConfig();
+    const QVariantList dirs = json.value("files").toList();
+    for (const QVariant &fileV : dirs) {
+        QVariantMap fileMap = fileV.toMap();
+        QString path = fileMap.value("path").toString();
+        if (!path.isEmpty()) {
+            m_jobDescriptors << MissingFile::JobDescriptor{ path };
         }
     }
 }
