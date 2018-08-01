@@ -30,7 +30,7 @@
 using namespace std;
 
 MissingFilePlugin::MissingFilePlugin()
-    : PluginInterface("missingfile", chrono::hours(1))
+    : PluginInterface("missingfile", chrono::hours(24))
 {
 }
 
