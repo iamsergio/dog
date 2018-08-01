@@ -87,7 +87,7 @@ bool PluginInterface::isWorking() const
 
 void PluginInterface::emitVisualWarning(const QString &text)
 {
-    qCDebug(category) << text;
+    qCWarning(category) << text;
     emit visualWarning(text);
 }
 
