@@ -30,12 +30,12 @@
 
 using namespace std;
 
-BuildDirCleaner::BuildDirCleaner(BuildDirCleanerPlugin *plugin)
+BuildDirCleanerWorker::BuildDirCleanerWorker(BuildDirCleanerPlugin *plugin)
     : WorkerObject(plugin)
 {
 }
 
-void BuildDirCleaner::work()
+void BuildDirCleanerWorker::work()
 {
     static bool alreadyRunning = false;
 
@@ -52,7 +52,7 @@ void BuildDirCleaner::work()
     alreadyRunning = false;
 }
 
-void BuildDirCleaner::loadJobDescriptors()
+void BuildDirCleanerWorker::loadJobDescriptors()
 {
     m_jobDescriptors.clear();
     const QVariantList dirs = m_plugin->jobDescriptorsVariant();
@@ -71,7 +71,7 @@ void BuildDirCleaner::loadJobDescriptors()
     }
 }
 
-void BuildDirCleaner::cleanOne(const JobDescriptor &job)
+void BuildDirCleanerWorker::cleanOne(const JobDescriptor &job)
 {
     if (job.method == JobDescriptor::Method_RmChilds) {
         runRmChilds(job);
@@ -85,7 +85,7 @@ void BuildDirCleaner::cleanOne(const JobDescriptor &job)
     qCDebug(m_plugin->category) << "Finished on" << job.path;
 }
 
-void BuildDirCleaner::runGitClean(const JobDescriptor &job)
+void BuildDirCleanerWorker::runGitClean(const JobDescriptor &job)
 {
     QProcess p;
     QEventLoop loop;
@@ -105,7 +105,7 @@ void BuildDirCleaner::runGitClean(const JobDescriptor &job)
     qCDebug(m_plugin->category) << "Git clean finished";
 }
 
-void BuildDirCleaner::runRmChilds(const JobDescriptor &job)
+void BuildDirCleanerWorker::runRmChilds(const JobDescriptor &job)
 {
     QDir dir(job.path);
     if (!job.pattern.isEmpty()) {
@@ -120,7 +120,7 @@ void BuildDirCleaner::runRmChilds(const JobDescriptor &job)
     }
 }
 
-void BuildDirCleaner::runRm(QDir &dirToDelete)
+void BuildDirCleanerWorker::runRm(QDir &dirToDelete)
 {
     const QDateTime now = QDateTime::currentDateTime();
     QFileInfo info(dirToDelete.absolutePath());
@@ -146,7 +146,7 @@ void BuildDirCleaner::runRm(QDir &dirToDelete)
 }
 
 BuildDirCleanerPlugin::BuildDirCleanerPlugin()
-    : PluginInterface("builddircleaner", chrono::hours(1))
+    : PluginInterface("BuildDirCleanerWorker", chrono::hours(1))
 {
 }
 
@@ -157,7 +157,7 @@ QString BuildDirCleanerPlugin::name() const
 
 QString BuildDirCleanerPlugin::shortName() const
 {
-    return "BuildDirCleaner";
+    return "BuildDirCleanerWorker";
 }
 
 void BuildDirCleanerPlugin::start_impl()
@@ -168,7 +168,7 @@ void BuildDirCleanerPlugin::start_impl()
 
 void BuildDirCleanerPlugin::work_impl()
 {
-    auto worker = new BuildDirCleaner(this);
+    auto worker = new BuildDirCleanerWorker(this);
     worker->loadJobDescriptors();
-    startInWorkerThread(worker, &BuildDirCleaner::work);
+    startInWorkerThread(worker, &BuildDirCleanerWorker::work);
 }

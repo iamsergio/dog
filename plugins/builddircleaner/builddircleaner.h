@@ -56,7 +56,7 @@ struct JobDescriptor
     }
 };
 
-class BuildDirCleaner : public WorkerObject<JobDescriptor>
+class BuildDirCleanerWorker : public WorkerObject<JobDescriptor>
 {
    Q_OBJECT
 public:
@@ -65,7 +65,7 @@ public:
         Action_Compress,
         Action_Delete
     };
-    explicit BuildDirCleaner(BuildDirCleanerPlugin *plugin);
+    explicit BuildDirCleanerWorker(BuildDirCleanerPlugin *plugin);
     void work() override;
     void loadJobDescriptors() override;
     void cleanOne(const JobDescriptor &);
