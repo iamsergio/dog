@@ -92,7 +92,7 @@ PluginInterface::PluginInterface(const QByteArray &id)
     , d(new Private(qgetenv("DOG_CONFIG_PATH"), id, this))
     , category(d->loggingCategoryName.constData())
 {
-    connect(&m_timer, &QTimer::timeout, this, &PluginInterface::work_impl);
+    connect(&m_timer, &QTimer::timeout, this, &PluginInterface::work);
     readJson(configFile());
 }
 
