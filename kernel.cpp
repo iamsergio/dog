@@ -36,17 +36,17 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     const QString typeStr = [type] {
         switch (type) {
         case QtDebugMsg:
-            return "DEBUG: ";
+            return QStringLiteral("DEBUG: ");
         case QtWarningMsg:
-            return "WARNING: ";
+            return QStringLiteral("WARNING: ");
         case QtCriticalMsg:
-            return "CRITICAL: ";
+            return QStringLiteral("CRITICAL: ");
         case QtFatalMsg:
-            return "FATAL: ";
+            return QStringLiteral("FATAL: ");
         case QtInfoMsg:
-            return "INFO: ";
+            return QStringLiteral("INFO: ");
         }
-        return "";
+        return QString();
     }();
 
     const QString endmsg = typeStr + msg;
@@ -93,7 +93,7 @@ void Kernel::start()
 void Kernel::listPlugins()
 {
     qDebug() << "Available plugins:";
-    for (auto p : m_plugins)
+    for (auto p : qAsConst(m_plugins))
         qDebug() << "    " << p->identifier();
 }
 
@@ -107,11 +107,11 @@ QString Kernel::osStr()
 {
     switch (Kernel::os()) {
     case DogOS_Linux:
-        return "linux";
+        return QStringLiteral("linux");
     case DogOS_Windows:
-        return "windows";
+        return QStringLiteral("windows");
     case DogOS_macOS:
-        return "macOS";
+        return QStringLiteral("macOS");
     default:
         return QString();
     }
@@ -121,9 +121,9 @@ QString Kernel::osTypeStr()
 {
     switch (Kernel::osType()) {
     case DogOSType_Posix:
-        return "posix";
+        return QStringLiteral("posix");
     case DogOSType_NT:
-        return "nt";
+        return QStringLiteral("nt");
     default:
         return QString();
     }
@@ -156,7 +156,7 @@ Kernel::DogOSType Kernel::osType()
 void Kernel::onVisualWarning(const QString &text)
 {
     // For now a message box
-    QMessageBox::warning(window(), "warning", text);
+    QMessageBox::warning(window(), QStringLiteral("warning"), text);
 }
 
 void Kernel::setupTrayIcon()
@@ -164,20 +164,20 @@ void Kernel::setupTrayIcon()
     auto menu = new QMenu();
 
     menu->addSeparator();
-    for (auto p : m_plugins) {
+    for (auto p : qAsConst(m_plugins)) {
         auto m = new QMenu(p->name());
         m->addAction(p->startAction());
         m->addAction(p->stopAction());
         menu->addMenu(m);
     }
 
-    QAction * action = menu->addAction("Show Log");
-    connect(action, &QAction::triggered, [this] {
+    QAction * action = menu->addAction(tr("Show Log"));
+    connect(action, &QAction::triggered, m_logger, [this] {
         m_logger->show();
     });
 
     menu->addSeparator();
-    action = menu->addAction("Quit");
+    action = menu->addAction(tr("Quit"));
     connect(action, &QAction::triggered, [] {
         qApp->quit();
     });
@@ -200,7 +200,8 @@ QStringList Kernel::userSpeciciedPluginNames() const
 void Kernel::loadPlugins()
 {
     QStringList pluginPaths;
-    for (const QString &path : qApp->libraryPaths()) {
+    const auto libraryPaths = qApp->libraryPaths();
+    for (const QString &path : libraryPaths) {
         pluginPaths += QStringLiteral("%1/../lib/dog/plugins/").arg(path);
         pluginPaths += QStringLiteral("%1/../lib64/dog/plugins/").arg(path);
         pluginPaths += QStringLiteral("%1/../lib32/dog/plugins/").arg(path);
@@ -208,7 +209,7 @@ void Kernel::loadPlugins()
 
     pluginPaths += QStringLiteral("%1/plugins/").arg(qApp->applicationDirPath());
 
-    for (const QString &pluginPath : pluginPaths) {
+    for (const QString &pluginPath : qAsConst(pluginPaths)) {
         QDir pluginsDir = pluginPath;
         qDebug() << "Looking in" << qApp->libraryPaths();
         foreach (const QString &fileName, pluginsDir.entryList(QDir::Files)) {
@@ -232,11 +233,11 @@ void Kernel::loadPlugins()
 void Kernel::startPlugins()
 {
     const QStringList userSpecifiedPlugins = userSpeciciedPluginNames();
-    for (auto p : m_plugins) {
+    for (auto p : qAsConst(m_plugins)) {
         if (userSpecifiedPlugins.isEmpty() || userSpecifiedPlugins.contains(p->identifier())) {
             if (p->autoStarts()) {
                 p->start();
-                qDebug() << QString("%1 started").arg(p->shortName());
+                qDebug() << QStringLiteral("%1 started").arg(p->shortName());
             }
         }
     }

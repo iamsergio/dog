@@ -41,7 +41,7 @@ void BackupWorker::work()
     if (m_encriptionCommand.isEmpty())
         return;
 
-    for (const auto &item : m_jobDescriptors) {
+    for (const auto &item : qAsConst(m_jobDescriptors)) {
         QString tarFilename;
         if (!fileService()->tarDirectory(item.source, tarFilename)) {
             deleteLater();

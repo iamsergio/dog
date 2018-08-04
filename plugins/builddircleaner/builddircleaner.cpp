@@ -45,7 +45,7 @@ void BuildDirCleanerWorker::work()
     }
 
     alreadyRunning = true;
-    for (const BuildDirCleanerPlugin::JobDescriptor &job : m_jobDescriptors) {
+    for (const BuildDirCleanerPlugin::JobDescriptor &job : qAsConst(m_jobDescriptors)) {
         cleanOne(job);
     }
     deleteLater();
@@ -90,7 +90,7 @@ void BuildDirCleanerWorker::runGitClean(const BuildDirCleanerPlugin::JobDescript
     QProcess p;
     QEventLoop loop;
     p.setWorkingDirectory(job.path);
-    p.connect(&p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), [&loop, this, &job] (int exitCode, QProcess::ExitStatus status) {
+    p.connect(&p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), m_plugin, [&loop, this, &job] (int exitCode, QProcess::ExitStatus) {
         if (exitCode == 0) {
             qCDebug(m_plugin->category) << QString("git cleaned %1").arg(job.path);
         } else {

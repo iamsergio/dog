@@ -57,7 +57,7 @@ class BackupWorker : public WorkerObject<BackupPlugin::JobDescriptor>
     Q_OBJECT
 public:
     explicit BackupWorker(PluginInterface*);
-    void work();
+    void work() override;
     void loadJobDescriptors() override;
 private:
     const QString m_encriptionCommand;
