@@ -105,6 +105,9 @@ public:
     explicit WorkerObject(PluginInterface *);
     virtual void work() = 0;
     virtual void loadJobDescriptors() = 0;
+
+    FileService* fileService() const { return m_plugin->fileService(); }
+
 protected:
     PluginInterface *const m_plugin;
     typename T::List m_jobDescriptors;

@@ -43,14 +43,14 @@ void BackupWorker::work()
 
     for (const auto &item : m_jobDescriptors) {
         QString tarFilename;
-        if (!m_plugin->fileService()->tarDirectory(item.source, tarFilename)) {
+        if (!fileService()->tarDirectory(item.source, tarFilename)) {
             deleteLater();
             return;
         }
 
         QString gpgFilename;
         if (item.encrypt) {
-            if (!m_plugin->fileService()->encryptFile(tarFilename, gpgFilename)) {
+            if (!fileService()->encryptFile(tarFilename, gpgFilename)) {
                 deleteLater();
                 return;
             }
@@ -58,7 +58,7 @@ void BackupWorker::work()
            gpgFilename = tarFilename;
         }
 
-        if (!m_plugin->fileService()->uploadFile(gpgFilename, item.destination)) {
+        if (!fileService()->uploadFile(gpgFilename, item.destination)) {
             deleteLater();
             return;
         }
