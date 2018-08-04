@@ -55,8 +55,6 @@ public:
     explicit MissingFileWorker(PluginInterface*);
     void work() override;
     void loadJobDescriptors() override;
-private:
-    MissingFilePlugin::JobDescriptor::List m_jobDescriptors;
 };
 
 #endif
