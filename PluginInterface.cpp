@@ -41,15 +41,15 @@ public:
         , stopAction(new QAction(tr("Stop")))
     {
         connect(startAction, &QAction::triggered, q, &PluginInterface::start);
-        connect(q, &PluginInterface::started, startAction, [this] {
-            startAction->setEnabled(false);
-            stopAction->setEnabled(true);
-        });
 
-        connect(q, &PluginInterface::stopped, startAction, [this] {
-            startAction->setEnabled(true);
-            stopAction->setEnabled(false);
-        });
+        auto updateActions = [this] {
+            startAction->setEnabled(!started);
+            stopAction->setEnabled(started && !working);
+        };
+
+        connect(q, &PluginInterface::started, startAction, updateActions);
+        connect(q, &PluginInterface::stopped, startAction, updateActions);
+        connect(q, &PluginInterface::workingChanged, startAction, updateActions);
 
         stopAction->setEnabled(false);
     }
@@ -63,6 +63,7 @@ public:
     QAction *stopAction;
     bool valid = true;
     bool working = false;
+    bool started = false;
     bool autoStarts = false;
 };
 
@@ -133,12 +134,19 @@ void PluginInterface::start()
     qCDebug(category) << "Started";
     start_impl();
 
+    d->started = true;
     emit started();
 }
 
 void PluginInterface::stop()
 {
-    // TODO
+    if (isWorking()) {
+        // Doesn't happen, as the action is disabled
+        return;
+    }
+
+    d->started = false;
+    emit stopped();
 }
 
 void PluginInterface::emitVisualWarning(const QString &text)
@@ -171,7 +179,12 @@ void PluginInterface::work()
 {
     Q_ASSERT(!isWorking());
     qCDebug(category) << "Work started";
+
     d->working = true;
+    emit workingChanged(true);
+
     work_impl();
+
     d->working = false;
+    emit workingChanged(false);
 }

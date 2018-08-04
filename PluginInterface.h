@@ -88,6 +88,7 @@ Q_SIGNALS:
     void visualWarning(const QString &text);
     void started();
     void stopped();
+    void workingChanged(bool);
 private:
     void readJson(const QString &filename);
     Q_DISABLE_COPY(PluginInterface);
