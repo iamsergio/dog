@@ -96,7 +96,7 @@ void BackupPlugin::work_impl()
 
 void BackupWorker::loadJobDescriptors()
 {
-    auto items = m_plugin->jobDescriptors();
+    auto items = m_plugin->jobDescriptorsVariant();
     for (const QVariant &i : items) {
         QVariantMap item = i.toMap();
         auto name = item.value("name").toString();

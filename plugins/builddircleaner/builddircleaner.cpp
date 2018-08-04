@@ -55,7 +55,7 @@ void BuildDirCleaner::work()
 void BuildDirCleaner::loadJobDescriptors()
 {
     m_jobDescriptors.clear();
-    const QVariantList dirs = m_plugin->jobDescriptors();
+    const QVariantList dirs = m_plugin->jobDescriptorsVariant();
     for (const QVariant &dirV : dirs) {
         QVariantMap dirMap = dirV.toMap();
         QString dir = dirMap.value("dir").toString();

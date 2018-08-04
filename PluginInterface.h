@@ -77,7 +77,7 @@ public:
         return thread;
     }
 
-    QVariantList jobDescriptors() const;
+    QVariantList jobDescriptorsVariant() const;
     bool autoStarts() const;
     void work();
     virtual void work_impl() = 0;

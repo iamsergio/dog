@@ -58,7 +58,7 @@ public:
     const QString config_path;
     const QString id;
     const QByteArray loggingCategoryName;
-    QVariantList jobDescriptors;
+    QVariantList jobDescriptorsVariant;
     QAction *startAction;
     QAction *stopAction;
     bool valid = true;
@@ -81,9 +81,9 @@ void PluginInterface::readJson(const QString &filename)
     d->autoStarts = map.value("autoStarts", false).toBool();
 
     // The custom/per-plugin format is under "jobs"
-    d->jobDescriptors = map.value("jobs").toList();
-    d->jobDescriptors += map.value(QStringLiteral("jobs_%1").arg(Kernel::osStr())).toList();
-    d->jobDescriptors += map.value(QStringLiteral("jobs_%1").arg(Kernel::osTypeStr())).toList();
+    d->jobDescriptorsVariant = map.value("jobs").toList();
+    d->jobDescriptorsVariant += map.value(QStringLiteral("jobs_%1").arg(Kernel::osStr())).toList();
+    d->jobDescriptorsVariant += map.value(QStringLiteral("jobs_%1").arg(Kernel::osTypeStr())).toList();
 }
 
 PluginInterface::PluginInterface(const QByteArray &id)
@@ -166,9 +166,9 @@ QString PluginInterface::configFile() const
     return QString("%1/%2/conf.json").arg(d->config_path, identifier());
 }
 
-QVariantList PluginInterface::jobDescriptors() const
+QVariantList PluginInterface::jobDescriptorsVariant() const
 {
-    return d->jobDescriptors;
+    return d->jobDescriptorsVariant;
 }
 
 bool PluginInterface::autoStarts() const
