@@ -27,36 +27,53 @@
 #include <QDir>
 
 class QFileInfo;
-class BuildDirCleanerPlugin;
 
-struct JobDescriptor
+class BuildDirCleanerPlugin : public PluginInterface
 {
-    typedef QVector<JobDescriptor> List;
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "smartins.dog.PluginInterface/v1.0.0")
+    Q_INTERFACES(PluginInterface)
 
-    enum Method {
-        Method_None = 0,
-        Method_Rm,
-        Method_RmChilds,
-        Method_GitClean
+public:
+
+    struct JobDescriptor
+    {
+        typedef QVector<JobDescriptor> List;
+
+        enum Method {
+            Method_None = 0,
+            Method_Rm,
+            Method_RmChilds,
+            Method_GitClean
+        };
+
+        QString path;
+        QString pattern;
+        Method method;
+
+        static Method methodFromString(const QString &s) {
+            if (s == "rm-childs")
+                return Method_RmChilds;
+            if (s == "rm")
+                return Method_Rm;
+            if (s == "git-clean")
+                return Method_GitClean;
+
+            return Method_None;
+        }
     };
 
-    QString path;
-    QString pattern;
-    Method method;
+    BuildDirCleanerPlugin();
+    QString name() const override;
+    QString shortName() const override;
+    void start_impl() override;
 
-    static Method methodFromString(const QString &s) {
-        if (s == "rm-childs")
-            return Method_RmChilds;
-        if (s == "rm")
-            return Method_Rm;
-        if (s == "git-clean")
-            return Method_GitClean;
-
-        return Method_None;
-    }
+protected:
+    void work_impl() override;
 };
 
-class BuildDirCleanerWorker : public WorkerObject<JobDescriptor>
+
+class BuildDirCleanerWorker : public WorkerObject<BuildDirCleanerPlugin::JobDescriptor>
 {
    Q_OBJECT
 public:
@@ -68,9 +85,9 @@ public:
     explicit BuildDirCleanerWorker(BuildDirCleanerPlugin *plugin);
     void work() override;
     void loadJobDescriptors() override;
-    void cleanOne(const JobDescriptor &);
-    void runGitClean(const JobDescriptor &);
-    void runRmChilds(const JobDescriptor &);
+    void cleanOne(const BuildDirCleanerPlugin::JobDescriptor &);
+    void runGitClean(const BuildDirCleanerPlugin::JobDescriptor &);
+    void runRmChilds(const BuildDirCleanerPlugin::JobDescriptor &);
     void runRm(QDir &dir);
 
 signals:
@@ -82,23 +99,6 @@ private:
    void compressFile(const QString &file);
    void removeFile(const QString &file);
    Action actionForFile(const QFileInfo &file) const;*/
-};
-
-
-class BuildDirCleanerPlugin : public PluginInterface
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "smartins.dog.PluginInterface/v1.0.0")
-    Q_INTERFACES(PluginInterface)
-
-public:
-    BuildDirCleanerPlugin();
-    QString name() const override;
-    QString shortName() const override;
-    void start_impl() override;
-
-protected:
-    void work_impl() override;
 };
 
 #endif

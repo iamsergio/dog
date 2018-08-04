@@ -45,7 +45,7 @@ void BuildDirCleanerWorker::work()
     }
 
     alreadyRunning = true;
-    for (const JobDescriptor &job : m_jobDescriptors) {
+    for (const BuildDirCleanerPlugin::JobDescriptor &job : m_jobDescriptors) {
         cleanOne(job);
     }
     deleteLater();
@@ -61,23 +61,23 @@ void BuildDirCleanerWorker::loadJobDescriptors()
         QString dir = dirMap.value("dir").toString();
         QString pattern = dirMap.value("pattern").toString();
         QString methodStr = dirMap.value("method").toString();
-        JobDescriptor::Method method = JobDescriptor::methodFromString(methodStr);
+        BuildDirCleanerPlugin::JobDescriptor::Method method = BuildDirCleanerPlugin::JobDescriptor::methodFromString(methodStr);
 
-        if (method == JobDescriptor::Method_None) {
+        if (method == BuildDirCleanerPlugin::JobDescriptor::Method_None) {
             qCWarning(m_plugin->category) << "Invalid method" << method;
         } else {
-            m_jobDescriptors << JobDescriptor { dir, pattern, method };
+            m_jobDescriptors << BuildDirCleanerPlugin::JobDescriptor { dir, pattern, method };
         }
     }
 }
 
-void BuildDirCleanerWorker::cleanOne(const JobDescriptor &job)
+void BuildDirCleanerWorker::cleanOne(const BuildDirCleanerPlugin::JobDescriptor &job)
 {
-    if (job.method == JobDescriptor::Method_RmChilds) {
+    if (job.method == BuildDirCleanerPlugin::JobDescriptor::Method_RmChilds) {
         runRmChilds(job);
-    } else if (job.method == JobDescriptor::Method_GitClean) {
+    } else if (job.method == BuildDirCleanerPlugin::JobDescriptor::Method_GitClean) {
         runGitClean(job);
-    } else if (job.method == JobDescriptor::Method_Rm) {
+    } else if (job.method == BuildDirCleanerPlugin::JobDescriptor::Method_Rm) {
         QDir dirToDelete(job.path);
         runRm(dirToDelete);
     }
@@ -85,7 +85,7 @@ void BuildDirCleanerWorker::cleanOne(const JobDescriptor &job)
     qCDebug(m_plugin->category) << "Finished on" << job.path;
 }
 
-void BuildDirCleanerWorker::runGitClean(const JobDescriptor &job)
+void BuildDirCleanerWorker::runGitClean(const BuildDirCleanerPlugin::JobDescriptor &job)
 {
     QProcess p;
     QEventLoop loop;
@@ -105,7 +105,7 @@ void BuildDirCleanerWorker::runGitClean(const JobDescriptor &job)
     qCDebug(m_plugin->category) << "Git clean finished";
 }
 
-void BuildDirCleanerWorker::runRmChilds(const JobDescriptor &job)
+void BuildDirCleanerWorker::runRmChilds(const BuildDirCleanerPlugin::JobDescriptor &job)
 {
     QDir dir(job.path);
     if (!job.pattern.isEmpty()) {

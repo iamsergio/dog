@@ -24,14 +24,6 @@
 
 #include <QObject>
 
-namespace MissingFile {
-struct JobDescriptor
-{
-    typedef QVector<JobDescriptor> List;
-    QString path;
-};
-}
-
 class QFileInfo;
 class MissingFilePlugin : public PluginInterface
 {
@@ -40,6 +32,13 @@ class MissingFilePlugin : public PluginInterface
     Q_INTERFACES(PluginInterface)
 
 public:
+
+    struct JobDescriptor
+    {
+        typedef QVector<JobDescriptor> List;
+        QString path;
+    };
+
     MissingFilePlugin();
     QString name() const override;
     QString shortName() const override;
@@ -49,7 +48,7 @@ protected:
     void work_impl() override;
 };
 
-class MissingFileWorker : public WorkerObject<MissingFile::JobDescriptor>
+class MissingFileWorker : public WorkerObject<MissingFilePlugin::JobDescriptor>
 {
    Q_OBJECT
 public:
@@ -57,7 +56,7 @@ public:
     void work() override;
     void loadJobDescriptors() override;
 private:
-    MissingFile::JobDescriptor::List m_jobDescriptors;
+    MissingFilePlugin::JobDescriptor::List m_jobDescriptors;
 };
 
 #endif

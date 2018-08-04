@@ -43,7 +43,6 @@ public:
         bool encrypt;
     };
 
-
     BackupPlugin();
     QString name() const override;
     QString shortName() const override;

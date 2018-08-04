@@ -1,4 +1,3 @@
 - Make all plugins use JSON.
-- Allow to stop plugins via GUI
 - Better way to show warnings in GUI
 - Disable DEBUG by default on GUI, enable with checkbox

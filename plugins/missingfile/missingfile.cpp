@@ -77,8 +77,8 @@ void MissingFileWorker::loadJobDescriptors()
     for (const QVariant &fileV : dirs) {
         QVariantMap fileMap = fileV.toMap();
         QString path = fileMap.value("path").toString();
-        if (!path.isEmpty()) {
-            m_jobDescriptors << MissingFile::JobDescriptor{ path };
+        if  (!path.isEmpty()) {
+            m_jobDescriptors << MissingFilePlugin::JobDescriptor{ path };
         }
     }
 }
