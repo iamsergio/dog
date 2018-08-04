@@ -145,6 +145,7 @@ void PluginInterface::stop()
         return;
     }
 
+    m_timer.stop();
     d->started = false;
     emit stopped();
 }
