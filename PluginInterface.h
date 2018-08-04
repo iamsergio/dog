@@ -46,12 +46,16 @@ public:
     bool isValid() const;
     bool isWorking() const;
 
+    QAction* startAction() const;
+    QAction* stopAction() const;
+
     //virtual bool enabled() const = 0;
     //virtual void setEnabled(bool enabled) = 0;
     virtual QString name() const = 0;
     virtual QString shortName() const = 0;
     void start();
     virtual void start_impl() = 0;
+    void stop();
 
     FileService *fileService() const { return m_fileService; }
 
@@ -82,6 +86,8 @@ public:
     QTimer m_timer;
 Q_SIGNALS:
     void visualWarning(const QString &text);
+    void started();
+    void stopped();
 private:
     void readJson(const QString &filename);
     Q_DISABLE_COPY(PluginInterface);

@@ -166,6 +166,8 @@ void Kernel::setupTrayIcon()
     menu->addSeparator();
     for (auto p : m_plugins) {
         auto m = new QMenu(p->name());
+        m->addAction(p->startAction());
+        m->addAction(p->stopAction());
         menu->addMenu(m);
     }
 

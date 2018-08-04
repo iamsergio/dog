@@ -1,6 +1,4 @@
 - Make all plugins use JSON.
-- Make a generic JSON format inside conf.json
-- Allow to now autostart all plugins
 - Allow to stop plugins via GUI
 - Better way to show warnings in GUI
 - Disable DEBUG by default on GUI, enable with checkbox

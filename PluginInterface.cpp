@@ -25,23 +25,42 @@
 #include <QJsonDocument>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QAction>
 
 using namespace std;
 
 class PluginInterface::Private
 {
 public:
-    Private(const QString &config_path, const QByteArray &id)
-        : config_path(config_path)
+    Private(const QString &config_path, const QByteArray &id, PluginInterface *q)
+        : q(q)
+        , config_path(config_path)
         , id(id)
         , loggingCategoryName(QByteArray("dog.plugins." + id))
+        , startAction(new QAction(tr("Start")))
+        , stopAction(new QAction(tr("Stop")))
     {
+        connect(startAction, &QAction::triggered, q, &PluginInterface::start);
+        connect(q, &PluginInterface::started, startAction, [this] {
+            startAction->setEnabled(false);
+            stopAction->setEnabled(true);
+        });
+
+        connect(q, &PluginInterface::stopped, startAction, [this] {
+            startAction->setEnabled(true);
+            stopAction->setEnabled(false);
+        });
+
+        stopAction->setEnabled(false);
     }
 
+    PluginInterface *const q;
     const QString config_path;
     const QString id;
     const QByteArray loggingCategoryName;
     QVariantList jobDescriptors;
+    QAction *startAction;
+    QAction *stopAction;
     bool valid = true;
     bool working = false;
     bool autoStarts = false;
@@ -68,7 +87,7 @@ void PluginInterface::readJson(const QString &filename)
 
 PluginInterface::PluginInterface(const QByteArray &id)
     : m_fileService(new FileService(this))
-    , d(new Private(qgetenv("DOG_CONFIG_PATH"), id))
+    , d(new Private(qgetenv("DOG_CONFIG_PATH"), id, this))
     , category(d->loggingCategoryName.constData())
 {
     connect(&m_timer, &QTimer::timeout, this, &PluginInterface::work_impl);
@@ -77,7 +96,7 @@ PluginInterface::PluginInterface(const QByteArray &id)
 
 PluginInterface::PluginInterface(const QByteArray &id, chrono::milliseconds timerInterval)
     : m_fileService(new FileService(this))
-    , d(new Private(qgetenv("DOG_CONFIG_PATH"), id))
+    , d(new Private(qgetenv("DOG_CONFIG_PATH"), id, this))
     , category(d->loggingCategoryName.constData())
 {
     m_timer.setInterval(timerInterval);
@@ -99,10 +118,27 @@ bool PluginInterface::isWorking() const
     return d->working;
 }
 
+QAction *PluginInterface::startAction() const
+{
+    return d->startAction;
+}
+
+QAction *PluginInterface::stopAction() const
+{
+    return d->stopAction;
+}
+
 void PluginInterface::start()
 {
     qCDebug(category) << "Started";
     start_impl();
+
+    emit started();
+}
+
+void PluginInterface::stop()
+{
+    // TODO
 }
 
 void PluginInterface::emitVisualWarning(const QString &text)
