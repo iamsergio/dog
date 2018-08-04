@@ -49,6 +49,9 @@ public:
 
 void PluginInterface::readJson(const QString &filename)
 {
+    if (!QFile::exists(filename))
+        return;
+
     QFile f(filename);
     f.open(QFile::ReadOnly);
     QByteArray fileContents = f.readAll();
