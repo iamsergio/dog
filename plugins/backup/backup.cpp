@@ -30,29 +30,27 @@
 
 using namespace std;
 
-Backuper::Backuper(BackupPlugin *q, const BackupPlugin::BackupItem::List &items)
-    : QObject(nullptr)
+BackupWorker::BackupWorker(PluginInterface *q)
+    : WorkerObject(q)
     , m_encriptionCommand(qgetenv("DOG_ENCRYPT_COMMAND"))
-    , m_backupItems(items)
-    , q(q)
 {
 }
 
-void Backuper::backup()
+void BackupWorker::work()
 {
     if (m_encriptionCommand.isEmpty())
         return;
 
-    for (const auto &item : m_backupItems) {
+    for (const auto &item : m_jobDescriptors) {
         QString tarFilename;
-        if (!q->fileService()->tarDirectory(item.source, tarFilename)) {
+        if (!m_plugin->fileService()->tarDirectory(item.source, tarFilename)) {
             deleteLater();
             return;
         }
 
         QString gpgFilename;
         if (item.encrypt) {
-            if (!q->fileService()->encryptFile(tarFilename, gpgFilename)) {
+            if (!m_plugin->fileService()->encryptFile(tarFilename, gpgFilename)) {
                 deleteLater();
                 return;
             }
@@ -60,7 +58,7 @@ void Backuper::backup()
            gpgFilename = tarFilename;
         }
 
-        if (!q->fileService()->uploadFile(gpgFilename, item.destination)) {
+        if (!m_plugin->fileService()->uploadFile(gpgFilename, item.destination)) {
             deleteLater();
             return;
         }
@@ -86,20 +84,19 @@ QString BackupPlugin::shortName() const
 
 void BackupPlugin::start_impl()
 {
-    loadJson();
     m_timer.start();
     work();
 }
 
 void BackupPlugin::work_impl()
 {
-    auto worker = new Backuper(this, m_backupItems);
-    startInWorkerThread(worker, &Backuper::backup);
+    auto worker = new BackupWorker(this);
+    startInWorkerThread(worker, &BackupWorker::work);
 }
 
-void BackupPlugin::loadJson()
+void BackupWorker::loadJobDescriptors()
 {
-    auto items = jobDescriptors();
+    auto items = m_plugin->jobDescriptors();
     for (const QVariant &i : items) {
         QVariantMap item = i.toMap();
         auto name = item.value("name").toString();
@@ -107,8 +104,8 @@ void BackupPlugin::loadJson()
         auto destination = item.value("destination").toString();
         auto encrypt = item.value("encrypt").toBool();
 
-        m_backupItems.append({name, source, destination, encrypt });
+        m_jobDescriptors.append({name, source, destination, encrypt });
     }
 
-     qCDebug(category) << QString("Loaded %1 backup items").arg(m_backupItems.size());
+     qCDebug(m_plugin->category) << QString("Loaded %1 backup items").arg(m_jobDescriptors.size());
 }

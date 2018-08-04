@@ -35,13 +35,14 @@ class BackupPlugin : public PluginInterface
 
 public:
 
-    struct BackupItem {
-        typedef QVector<BackupItem> List;
+    struct JobDescriptor {
+        typedef QVector<JobDescriptor> List;
         QString name;
         QString source;
         QString destination;
         bool encrypt;
     };
+
 
     BackupPlugin();
     QString name() const override;
@@ -50,24 +51,18 @@ public:
 
 protected:
     void work_impl() override;
-
-private:
-    void loadJson();
-    BackupItem::List m_backupItems;
 };
 
-class Backuper : public QObject {
+class BackupWorker : public WorkerObject<BackupPlugin::JobDescriptor>
+{
     Q_OBJECT
 public:
-    explicit Backuper(BackupPlugin *q, const BackupPlugin::BackupItem::List &items);
-
-public Q_SLOTS:
-    void backup();
-
+    explicit BackupWorker(PluginInterface*);
+    void work();
+    void loadJobDescriptors() override;
 private:
     const QString m_encriptionCommand;
-    BackupPlugin::BackupItem::List m_backupItems;
-    BackupPlugin *const q;
+    BackupPlugin::JobDescriptor::List m_jobDescriptors;
 };
 
 #endif
