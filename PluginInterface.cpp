@@ -19,6 +19,7 @@
 
 #include "PluginInterface.h"
 #include "fileservice.h"
+#include "kernel.h"
 
 #include <QFile>
 #include <QJsonDocument>
@@ -40,12 +41,13 @@ public:
     const QString config_path;
     const QString id;
     const QByteArray loggingCategoryName;
+    QVariantList jobDescriptors;
     bool valid = true;
     bool working = false;
     bool autoStarts = false;
 };
 
-QVariantMap PluginInterface::readJson(const QString &filename) const
+void PluginInterface::readJson(const QString &filename)
 {
     QFile f(filename);
     f.open(QFile::ReadOnly);
@@ -56,7 +58,9 @@ QVariantMap PluginInterface::readJson(const QString &filename) const
     d->autoStarts = map.value("autoStarts", false).toBool();
 
     // The custom/per-plugin format is under "jobs"
-    return map.value("jobs").toMap();
+    d->jobDescriptors = map.value("jobs").toList();
+    d->jobDescriptors += map.value(QStringLiteral("jobs_%1").arg(Kernel::osStr())).toList();
+    d->jobDescriptors += map.value(QStringLiteral("jobs_%1").arg(Kernel::osTypeStr())).toList();
 }
 
 PluginInterface::PluginInterface(const QByteArray &id)
@@ -65,6 +69,7 @@ PluginInterface::PluginInterface(const QByteArray &id)
     , category(d->loggingCategoryName.constData())
 {
     connect(&m_timer, &QTimer::timeout, this, &PluginInterface::work_impl);
+    readJson(configFile());
 }
 
 PluginInterface::PluginInterface(const QByteArray &id, chrono::milliseconds timerInterval)
@@ -73,6 +78,7 @@ PluginInterface::PluginInterface(const QByteArray &id, chrono::milliseconds time
     , category(d->loggingCategoryName.constData())
 {
     m_timer.setInterval(timerInterval);
+    readJson(configFile());
 }
 
 QString PluginInterface::identifier() const
@@ -112,14 +118,14 @@ QString PluginInterface::configFile() const
     return QString("%1/%2/conf.json").arg(d->config_path, identifier());
 }
 
+QVariantList PluginInterface::jobDescriptors() const
+{
+    return d->jobDescriptors;
+}
+
 bool PluginInterface::autoStarts() const
 {
     return d->autoStarts;
-}
-
-QVariantMap PluginInterface::readConfig() const
-{
-    return readJson(configFile());
 }
 
 void PluginInterface::work()

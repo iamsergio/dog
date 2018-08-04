@@ -37,8 +37,9 @@ public:
     void start();
     void listPlugins();
     QWidget *window() const;
+    static QString osStr();
+    static QString osTypeStr();
 private:
-
     enum DogOS {
         DogOS_None = 0,
         DogOS_Linux,
@@ -52,8 +53,8 @@ private:
         DogOSType_NT
     };
 
-    DogOS os() const;
-    DogOSType osType() const;
+    static DogOS os();
+    static DogOSType osType();
 
     void onVisualWarning(const QString &text);
     void loadPlugins();

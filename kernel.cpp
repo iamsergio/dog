@@ -103,7 +103,33 @@ QWidget *Kernel::window() const
     return widgets.isEmpty() ? nullptr : widgets.first();
 }
 
-Kernel::DogOS Kernel::os() const
+QString Kernel::osStr()
+{
+    switch (Kernel::os()) {
+    case DogOS_Linux:
+        return "linux";
+    case DogOS_Windows:
+        return "windows";
+    case DogOS_macOS:
+        return "macOS";
+    default:
+        return QString();
+    }
+}
+
+QString Kernel::osTypeStr()
+{
+    switch (Kernel::osType()) {
+    case DogOSType_Posix:
+        return "posix";
+    case DogOSType_NT:
+        return "nt";
+    default:
+        return QString();
+    }
+}
+
+Kernel::DogOS Kernel::os()
 {
 #if defined(Q_OS_LINUX)
     return DogOS_Linux;
@@ -116,9 +142,9 @@ Kernel::DogOS Kernel::os() const
 #endif
 }
 
-Kernel::DogOSType Kernel::osType() const
+Kernel::DogOSType Kernel::osType()
 {
-    auto os = this->os();
+    auto os = Kernel::os();
     if (os == DogOS_Linux || os == DogOS_macOS)
         return DogOSType_Posix;
     else if (os == DogOS_Windows)

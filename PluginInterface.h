@@ -56,7 +56,6 @@ public:
     FileService *fileService() const { return m_fileService; }
 
     void emitVisualWarning(const QString &text);
-    QVariantMap readConfig() const;
 
 public:
     QString qrcPath() const;
@@ -74,6 +73,7 @@ public:
         return thread;
     }
 
+    QVariantList jobDescriptors() const;
     bool autoStarts() const;
     void work();
     virtual void work_impl() = 0;
@@ -83,7 +83,7 @@ public:
 Q_SIGNALS:
     void visualWarning(const QString &text);
 private:
-    QVariantMap readJson(const QString &filename) const;
+    void readJson(const QString &filename);
     Q_DISABLE_COPY(PluginInterface);
     class Private;
     Private *const d;

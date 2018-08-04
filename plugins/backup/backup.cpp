@@ -99,8 +99,7 @@ void BackupPlugin::work_impl()
 
 void BackupPlugin::loadJson()
 {
-    QVariantMap json = readConfig();
-    auto items = json.value("jobs").toList();
+    auto items = jobDescriptors();
     for (const QVariant &i : items) {
         QVariantMap item = i.toMap();
         auto name = item.value("name").toString();
