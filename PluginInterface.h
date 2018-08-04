@@ -115,7 +115,7 @@ protected:
 
 template <typename T>
 WorkerObject<T>::WorkerObject(PluginInterface *plugin)
-    : QObject(plugin)
+    : QObject(nullptr)
     , m_plugin(plugin)
 {
 }
