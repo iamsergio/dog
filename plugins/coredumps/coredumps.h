@@ -23,16 +23,34 @@
 #include "PluginInterface.h"
 #include <QObject>
 
-namespace CoreDumpCleanerNS {
-struct JobDescriptor {
-    // Nothing needed yet
-    typedef QVector<JobDescriptor> List;
-};
-}
-
 class QFileInfo;
-class CoreDumpsPlugin;
-class CoreDumpCleaner : public WorkerObject<CoreDumpCleanerNS::JobDescriptor>
+
+class CoreDumpsPlugin : public PluginInterface
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "smartins.dog.PluginInterface/v1.0.0")
+    Q_INTERFACES(PluginInterface)
+
+public:
+
+    struct JobDescriptor {
+        typedef QVector<JobDescriptor> List;
+        QString coreDumpPath;
+    };
+
+    CoreDumpsPlugin();
+    QString name() const override;
+    QString shortName() const override;
+    void start_impl() override;
+
+protected:
+    void work_impl() override;
+
+private:
+    friend class CoreDumpCleanerWorker;
+};
+
+class CoreDumpCleanerWorker : public WorkerObject<CoreDumpsPlugin::JobDescriptor>
 {
    Q_OBJECT
 public:
@@ -42,7 +60,7 @@ public:
         Action_Delete
     };
 
-    explicit CoreDumpCleaner(CoreDumpsPlugin *plugin);
+    explicit CoreDumpCleanerWorker(CoreDumpsPlugin *plugin);
 
     void work() override;
     void loadJobDescriptors() override;
@@ -53,25 +71,6 @@ signals:
 private:
    Q_ENUM(Action)
    Action actionForFile(const QFileInfo &file) const;
-};
-
-class CoreDumpsPlugin : public PluginInterface
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "smartins.dog.PluginInterface/v1.0.0")
-    Q_INTERFACES(PluginInterface)
-
-public:
-    CoreDumpsPlugin();
-    QString name() const override;
-    QString shortName() const override;
-    void start_impl() override;
-
-protected:
-    void work_impl() override;
-
-private:
-    friend class CoreDumpCleaner;
 };
 
 #endif

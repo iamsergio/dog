@@ -34,7 +34,7 @@ using namespace std;
 
 const char *const s_coredump_folder = "/data/cores/";
 
-void CoreDumpCleaner::work()
+void CoreDumpCleanerWorker::work()
 {
     QDir coredumpDir(s_coredump_folder);
     if (!coredumpDir.exists())
@@ -54,18 +54,26 @@ void CoreDumpCleaner::work()
     deleteLater();
 }
 
-void CoreDumpCleaner::loadJobDescriptors()
+void CoreDumpCleanerWorker::loadJobDescriptors()
 {
+    m_jobDescriptors.clear();
+    const auto descriptors = m_plugin->jobDescriptorsVariant();
+    if (descriptors.isEmpty())
+        return;
 
+    QString path = descriptors.first().toMap().value(QStringLiteral("path")).toString();
+    if (!path.isEmpty()) {
+        m_jobDescriptors << CoreDumpsPlugin::JobDescriptor { path };
+    }
 }
 
-CoreDumpCleaner::CoreDumpCleaner(CoreDumpsPlugin *plugin)
+CoreDumpCleanerWorker::CoreDumpCleanerWorker(CoreDumpsPlugin *plugin)
     : WorkerObject(plugin)
 {
 
 }
 
-CoreDumpCleaner::Action CoreDumpCleaner::actionForFile(const QFileInfo &file) const
+CoreDumpCleanerWorker::Action CoreDumpCleanerWorker::actionForFile(const QFileInfo &file) const
 {
     // Returns what we should do with the file.
     QDateTime creationTime = file.birthTime();
@@ -105,7 +113,7 @@ void CoreDumpsPlugin::start_impl()
 
 void CoreDumpsPlugin::work_impl()
 {
-    auto worker = new CoreDumpCleaner(this);
+    auto worker = new CoreDumpCleanerWorker(this);
     worker->loadJobDescriptors();
-    startInWorkerThread(worker, &CoreDumpCleaner::work);
+    startInWorkerThread(worker, &CoreDumpCleanerWorker::work);
 }
