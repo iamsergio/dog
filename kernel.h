@@ -38,6 +38,23 @@ public:
     void listPlugins();
     QWidget *window() const;
 private:
+
+    enum DogOS {
+        DogOS_None = 0,
+        DogOS_Linux,
+        DogOS_macOS,
+        DogOS_Windows
+    };
+
+    enum DogOSType {
+        DogOSType_None = 0,
+        DogOSType_Posix,
+        DogOSType_NT
+    };
+
+    DogOS os() const;
+    DogOSType osType() const;
+
     void onVisualWarning(const QString &text);
     void loadPlugins();
     void startPlugins();

@@ -103,6 +103,30 @@ QWidget *Kernel::window() const
     return widgets.isEmpty() ? nullptr : widgets.first();
 }
 
+Kernel::DogOS Kernel::os() const
+{
+#if defined(Q_OS_LINUX)
+    return DogOS_Linux;
+#elif define(Q_OS_MACOS)
+    return DogOS_macOS;
+#elif defined(Q_OS_WIN)
+    return DogOS_Windows;
+#else
+    return DogOS_None;
+#endif
+}
+
+Kernel::DogOSType Kernel::osType() const
+{
+    auto os = this->os();
+    if (os == DogOS_Linux || os == DogOS_macOS)
+        return DogOSType_Posix;
+    else if (os == DogOS_Windows)
+        return DogOSType_NT;
+    else
+        return DogOSType_None;
+}
+
 void Kernel::onVisualWarning(const QString &text)
 {
     // For now a message box
