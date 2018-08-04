@@ -32,16 +32,26 @@ using namespace std;
 
 #define INTERVAL 3600 // 1 hour
 
-const char *const s_coredump_folder = "/data/cores/";
-
 void CoreDumpCleanerWorker::work()
 {
-    QDir coredumpDir(s_coredump_folder);
+    if (m_jobDescriptors.isEmpty())
+        return;
+
+    QString coreDumpPath = m_jobDescriptors.constFirst().coreDumpPath;
+    QDir coredumpDir(coreDumpPath);
     if (!coredumpDir.exists())
         return;
 
     QString outfile;
     QFileInfoList fileInfos = coredumpDir.entryInfoList(QDir::Files);
+
+    if (fileInfos.isEmpty()) {
+        qCDebug(m_plugin->category) << "Nothing to do";
+        return;
+    }
+
+    qCDebug(m_plugin->category) << "Working on" << coreDumpPath;
+
     for (const QFileInfo &file : fileInfos) {
         Action action = actionForFile(file);
         if (action == Action_Delete)
@@ -62,9 +72,8 @@ void CoreDumpCleanerWorker::loadJobDescriptors()
         return;
 
     QString path = descriptors.first().toMap().value(QStringLiteral("path")).toString();
-    if (!path.isEmpty()) {
+    if (!path.isEmpty())
         m_jobDescriptors << CoreDumpsPlugin::JobDescriptor { path };
-    }
 }
 
 CoreDumpCleanerWorker::CoreDumpCleanerWorker(CoreDumpsPlugin *plugin)
