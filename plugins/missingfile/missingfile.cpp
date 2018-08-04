@@ -74,7 +74,7 @@ void MissingFileWorker::work()
 void MissingFileWorker::loadJobDescriptors()
 {
     QVariantMap json = m_plugin->readConfig();
-    const QVariantList dirs = json.value("files").toList();
+    const QVariantList dirs = json.value("jobs").toList();
     for (const QVariant &fileV : dirs) {
         QVariantMap fileMap = fileV.toMap();
         QString path = fileMap.value("path").toString();

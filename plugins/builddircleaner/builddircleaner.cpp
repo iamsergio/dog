@@ -56,7 +56,7 @@ void BuildDirCleaner::loadJobDescriptors()
 {
     m_jobDescriptors.clear();
     QVariantMap json = m_plugin->readConfig();
-    const QVariantList dirs = json.value("dirs").toList();
+    const QVariantList dirs = json.value("jobs").toList();
     for (const QVariant &dirV : dirs) {
         QVariantMap dirMap = dirV.toMap();
         QString dir = dirMap.value("dir").toString();

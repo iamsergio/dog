@@ -82,6 +82,7 @@ public:
 Q_SIGNALS:
     void visualWarning(const QString &text);
 private:
+    QVariantMap readJson(const QString &filename) const;
     Q_DISABLE_COPY(PluginInterface);
     class Private;
     Private *const d;

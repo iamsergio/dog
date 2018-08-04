@@ -42,16 +42,21 @@ public:
     const QByteArray loggingCategoryName;
     bool valid = true;
     bool working = false;
+    bool autoStarts = false;
 };
 
-static QVariantMap readJson(const QString &filename)
+QVariantMap PluginInterface::readJson(const QString &filename) const
 {
     QFile f(filename);
     f.open(QFile::ReadOnly);
     QByteArray fileContents = f.readAll();
     QJsonParseError jsonError; // TODO handle errors
     QJsonDocument document = QJsonDocument::fromJson(fileContents, &jsonError);
-    return document.toVariant().toMap();
+    const auto map = document.toVariant().toMap();
+    d->autoStarts = map.value("autoStarts", false).toBool();
+
+    // The custom/per-plugin format is under "jobs"
+    return map.value("jobs").toMap();
 }
 
 PluginInterface::PluginInterface(const QByteArray &id)
