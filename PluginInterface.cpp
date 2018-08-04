@@ -41,6 +41,7 @@ public:
         , stopAction(new QAction(tr("Stop")))
     {
         connect(startAction, &QAction::triggered, q, &PluginInterface::start);
+        connect(stopAction, &QAction::triggered, q, &PluginInterface::stop);
 
         auto updateActions = [this] {
             startAction->setEnabled(!started);
