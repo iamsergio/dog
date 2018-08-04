@@ -176,13 +176,16 @@ void Kernel::loadPlugins()
     }
 }
 
+// Starts the plugins which have autoStart=true
 void Kernel::startPlugins()
 {
     const QStringList userSpecifiedPlugins = userSpeciciedPluginNames();
     for (auto p : m_plugins) {
         if (userSpecifiedPlugins.isEmpty() || userSpecifiedPlugins.contains(p->identifier())) {
-            p->start();
-            qDebug() << QString("%1 started").arg(p->shortName());
+            if (p->autoStarts()) {
+                p->start();
+                qDebug() << QString("%1 started").arg(p->shortName());
+            }
         }
     }
 }

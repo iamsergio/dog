@@ -74,6 +74,7 @@ public:
         return thread;
     }
 
+    bool autoStarts() const;
     void work();
     virtual void work_impl() = 0;
 

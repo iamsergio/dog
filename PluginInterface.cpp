@@ -112,6 +112,11 @@ QString PluginInterface::configFile() const
     return QString("%1/%2/conf.json").arg(d->config_path, identifier());
 }
 
+bool PluginInterface::autoStarts() const
+{
+    return d->autoStarts;
+}
+
 QVariantMap PluginInterface::readConfig() const
 {
     return readJson(configFile());
