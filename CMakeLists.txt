@@ -22,4 +22,5 @@ add_subdirectory(plugins)
 install (TARGETS dog DESTINATION bin)
 install (TARGETS doglib
          RUNTIME DESTINATION bin
+         LIBRARY DESTINATION lib
          ARCHIVE DESTINATION lib)

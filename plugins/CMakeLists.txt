@@ -12,7 +12,8 @@ macro(add_dog_plugin _name _has_resources)
     endif()
     target_link_libraries(${_name} doglib)
     qt5_use_modules(${_name} Widgets)
-    install(TARGETS ${_name} RUNTIME DESTINATION lib${LIB_SUFFIX}/dog/plugins/)
+    install(TARGETS ${_name} RUNTIME DESTINATION lib${LIB_SUFFIX}/dog/plugins/
+                            LIBRARY DESTINATION lib${LIB_SUFFIX}/dog/plugins/)
 endmacro()
 
 
