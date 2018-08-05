@@ -80,7 +80,6 @@ static QString replaceEnvVariables(const QString &originalJson)
         QString envValue = qgetenv(var.toLatin1().constData());
         envValue.replace("\\", "/"); // Json doesn't like strings like c:\foo, needs to be c:\\foo
         result.replace(QStringLiteral("${%1}").arg(var), envValue);
-        qDebug() << "res " << result;
     }
 
     return result;

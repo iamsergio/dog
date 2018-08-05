@@ -73,6 +73,9 @@ void BuildDirCleanerWorker::loadJobDescriptors()
 
 void BuildDirCleanerWorker::cleanOne(const BuildDirCleanerPlugin::JobDescriptor &job)
 {
+    if (!QFile::exists(job.path))
+        return;
+
     if (job.method == BuildDirCleanerPlugin::JobDescriptor::Method_RmChilds) {
         runRmChilds(job);
     } else if (job.method == BuildDirCleanerPlugin::JobDescriptor::Method_GitClean) {
