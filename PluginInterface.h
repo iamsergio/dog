@@ -49,6 +49,7 @@ public:
 
     bool isValid() const;
     bool isWorking() const;
+    bool hasJobs() const;
 
     QAction* startAction() const;
     QAction* stopAction() const;

@@ -240,7 +240,6 @@ void Kernel::startPlugins()
         if (userSpecifiedPlugins.isEmpty() || userSpecifiedPlugins.contains(p->identifier())) {
             if (p->autoStarts()) {
                 p->start();
-                qDebug() << QStringLiteral("%1 started").arg(p->shortName());
             }
         }
     }

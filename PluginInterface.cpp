@@ -120,6 +120,11 @@ bool PluginInterface::isWorking() const
     return d->working;
 }
 
+bool PluginInterface::hasJobs() const
+{
+    return !d->jobDescriptorsVariant.isEmpty();
+}
+
 QAction *PluginInterface::startAction() const
 {
     return d->startAction;
@@ -179,6 +184,9 @@ bool PluginInterface::autoStarts() const
 
 void PluginInterface::work()
 {
+    if (!hasJobs())
+        return;
+
     Q_ASSERT(!isWorking());
     qCDebug(category) << "Work started";
 
