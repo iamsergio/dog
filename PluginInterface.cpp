@@ -26,6 +26,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QAction>
+#include <QRegularExpression>
 
 using namespace std;
 
@@ -68,6 +69,23 @@ public:
     bool autoStarts = false;
 };
 
+static QString replaceEnvVariables(const QString &originalJson)
+{
+    QString result = originalJson;
+
+    QRegularExpression re(R"(\${(.*)})");
+    auto it = re.globalMatch(originalJson);
+    while (it.hasNext()) {
+        QString var = it.next().captured(1);
+        QString envValue = qgetenv(var.toLatin1().constData());
+        envValue.replace("\\", "/"); // Json doesn't like strings like c:\foo, needs to be c:\\foo
+        result.replace(QStringLiteral("${%1}").arg(var), envValue);
+        qDebug() << "res " << result;
+    }
+
+    return result;
+}
+
 void PluginInterface::readJson(const QString &filename)
 {
     if (!QFile::exists(filename))
@@ -75,9 +93,9 @@ void PluginInterface::readJson(const QString &filename)
 
     QFile f(filename);
     f.open(QFile::ReadOnly);
-    QByteArray fileContents = f.readAll();
+    QString fileContents = replaceEnvVariables(f.readAll());
     QJsonParseError jsonError; // TODO handle errors
-    QJsonDocument document = QJsonDocument::fromJson(fileContents, &jsonError);
+    QJsonDocument document = QJsonDocument::fromJson(fileContents.toUtf8(), &jsonError);
     const auto map = document.toVariant().toMap();
     d->autoStarts = map.value("autoStarts", false).toBool();
 

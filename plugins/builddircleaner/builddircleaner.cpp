@@ -146,7 +146,7 @@ void BuildDirCleanerWorker::runRm(QDir &dirToDelete)
 }
 
 BuildDirCleanerPlugin::BuildDirCleanerPlugin()
-    : PluginInterface("BuildDirCleanerWorker", chrono::hours(1))
+    : PluginInterface("builddircleaner", chrono::hours(1))
 {
 }
 
@@ -157,7 +157,7 @@ QString BuildDirCleanerPlugin::name() const
 
 QString BuildDirCleanerPlugin::shortName() const
 {
-    return "BuildDirCleanerWorker";
+    return "BuildDirCleaner";
 }
 
 void BuildDirCleanerPlugin::start_impl()
