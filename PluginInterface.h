@@ -29,6 +29,8 @@
 #include <QThread>
 #include <QLoggingCategory>
 
+#include <chrono>
+
 class FileService;
 
 class PluginInterface : public QObject
@@ -91,7 +93,7 @@ Q_SIGNALS:
     void workingChanged(bool);
 private:
     void readJson(const QString &filename);
-    Q_DISABLE_COPY(PluginInterface);
+    Q_DISABLE_COPY(PluginInterface)
     class Private;
     Private *const d;
 public:
