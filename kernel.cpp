@@ -64,6 +64,8 @@ Kernel::Kernel()
     , m_systrayIcon(new QSystemTrayIcon(QIcon(), this))
     , m_logger(new Logger())
 {
+    qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
+
     s_kernel = this;
     s_originalMessageHandler = qInstallMessageHandler(myMessageOutput);
     m_configPath = qgetenv("DOG_CONFIG_PATH");
@@ -74,7 +76,6 @@ Kernel::Kernel()
     }
 
     loadPlugins();
-
 
     m_logger->resize(600, 600);
 }

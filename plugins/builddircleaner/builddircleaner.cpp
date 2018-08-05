@@ -63,6 +63,11 @@ void BuildDirCleanerWorker::loadJobDescriptors()
         QString methodStr = dirMap.value("method").toString();
         BuildDirCleanerPlugin::JobDescriptor::Method method = BuildDirCleanerPlugin::JobDescriptor::methodFromString(methodStr);
 
+        if (method != BuildDirCleanerPlugin::JobDescriptor::Method_RmChilds && !pattern.isEmpty()) {
+            qCDebug(m_plugin->category) << "Ignoring job which has pattern but is not of type RmChilds";
+            continue;
+        }
+
         if (method == BuildDirCleanerPlugin::JobDescriptor::Method_None) {
             qCWarning(m_plugin->category) << "Invalid method" << method;
         } else {
@@ -94,18 +99,14 @@ void BuildDirCleanerWorker::runGitClean(const BuildDirCleanerPlugin::JobDescript
     QEventLoop loop;
     p.setWorkingDirectory(job.path);
     p.connect(&p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), m_plugin, [&loop, this, &job] (int exitCode, QProcess::ExitStatus) {
-        if (exitCode == 0) {
-            qCDebug(m_plugin->category) << QString("git cleaned %1").arg(job.path);
-        } else {
+        if (exitCode != 0)
             qCWarning(m_plugin->category) << QString("Unable to git clean %1").arg(job.path);
-        }
         loop.quit();
     });
 
     qCDebug(m_plugin->category) << "Starting git clean -fdx on " << job.path;
     p.start("git", {"clean", "-fdx"});
     loop.exec();
-    qCDebug(m_plugin->category) << "Git clean finished";
 }
 
 void BuildDirCleanerWorker::runRmChilds(const BuildDirCleanerPlugin::JobDescriptor &job)
