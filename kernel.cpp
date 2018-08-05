@@ -220,10 +220,13 @@ void Kernel::loadPlugins()
                     connect(p, &PluginInterface::visualWarning, this, &Kernel::onVisualWarning);
                     qDebug() << "Loadded " << fileName;
                 } else {
-                    qWarning() << "Failed to load " << pluginsDir.absoluteFilePath(fileName);
+                    qWarning() << "Failed to load " << pluginsDir.absoluteFilePath(fileName)
+                               << "; instance=" << loader.instance()
+                               << loader.errorString();
                 }
             } else {
-                qWarning() << "Failed to load" << pluginsDir.absoluteFilePath(fileName);
+                qWarning() << "Failed to load" << pluginsDir.absoluteFilePath(fileName)
+                           << "; error=" << loader.errorString();
             }
         }
     }
