@@ -133,7 +133,7 @@ Kernel::DogOS Kernel::os()
 {
 #if defined(Q_OS_LINUX)
     return DogOS_Linux;
-#elif define(Q_OS_MACOS)
+#elif defined(Q_OS_MACOS)
     return DogOS_macOS;
 #elif defined(Q_OS_WIN)
     return DogOS_Windows;

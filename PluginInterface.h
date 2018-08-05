@@ -20,6 +20,8 @@
 #ifndef DOG_PLUGININTERFACE_H
 #define DOG_PLUGININTERFACE_H
 
+#include "dog_export.h"
+
 #include <QString>
 #include <QList>
 #include <QtPlugin>
@@ -33,7 +35,7 @@
 
 class FileService;
 
-class PluginInterface : public QObject
+class DOG_EXPORT PluginInterface : public QObject
 {
     Q_OBJECT
 public:

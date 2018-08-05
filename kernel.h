@@ -20,13 +20,15 @@
 #ifndef DOG_KERNEL_H
 #define DOG_KERNEL_H
 
+#include "dog_export.h"
 #include "PluginInterface.h"
 
 #include <QObject>
+
 class Logger;
 class QSystemTrayIcon;
 
-class Kernel : public QObject
+class DOG_EXPORT Kernel : public QObject
 {
     Q_OBJECT
 public:

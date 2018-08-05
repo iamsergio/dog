@@ -20,13 +20,15 @@
 #ifndef DOG_LOGGER_H
 #define DOG_LOGGER_H
 
+#include "dog_export.h"
+
 #include <QWidget>
 #include <QMutex>
 
 class QTextEdit;
 class QTabWidget;
 
-class Logger : public QWidget
+class DOG_EXPORT Logger : public QWidget
 {
     Q_OBJECT
 public:

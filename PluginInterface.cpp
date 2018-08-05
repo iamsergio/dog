@@ -96,12 +96,12 @@ PluginInterface::PluginInterface(const QByteArray &id)
     readJson(configFile());
 }
 
-PluginInterface::PluginInterface(const QByteArray &id, chrono::milliseconds timerInterval)
+PluginInterface::PluginInterface(const QByteArray &id, std::chrono::milliseconds timerInterval)
     : m_fileService(new FileService(this))
     , d(new Private(qgetenv("DOG_CONFIG_PATH"), id, this))
     , category(d->loggingCategoryName.constData())
 {
-    m_timer.setInterval(timerInterval);
+    m_timer.setInterval(timerInterval.count());
     readJson(configFile());
 }
 

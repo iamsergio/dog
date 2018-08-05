@@ -20,13 +20,15 @@
 #ifndef FILESERVICE_H
 #define FILESERVICE_H
 
+#include "dog_export.h"
+
 #include <QObject>
 #include <QLoggingCategory>
 
 class QFileInfo;
 class PluginInterface;
 
-class FileService : public QObject
+class DOG_EXPORT FileService : public QObject
 {
     Q_OBJECT
 public:
