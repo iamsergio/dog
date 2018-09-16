@@ -38,8 +38,15 @@ BackupWorker::BackupWorker(PluginInterface *q)
 
 void BackupWorker::work()
 {
-    if (m_encriptionCommand.isEmpty())
+    if (m_encriptionCommand.isEmpty()) {
+        qCWarning(m_plugin->category) << "m_encriptionCommand is empty, bailing out";
         return;
+    }
+
+    if (m_jobDescriptors.isEmpty()) {
+        qCDebug(m_plugin->category) << "m_jobDescriptors is empty, bailling out";
+    }
+
 
     for (const auto &item : qAsConst(m_jobDescriptors)) {
         QString tarFilename;
@@ -91,6 +98,7 @@ void BackupPlugin::start_impl()
 void BackupPlugin::work_impl()
 {
     auto worker = new BackupWorker(this);
+    worker->loadJobDescriptors();
     startInWorkerThread(worker, &BackupWorker::work);
 }
 
