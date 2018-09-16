@@ -125,7 +125,7 @@ bool FileService::uploadFile(const QString &file, const QString &destiny, bool r
     }
 
     const QString command = QString("scp %1 %2").arg(file, destiny);
-    qDebug() << "command: " << command;
+    qCDebug(category) << "command: " << command;
     bool success = QProcess::execute(command) == 0;
     if (!success) {
         qCWarning(category) << "FileService::uploadFile: Error running" + command;
