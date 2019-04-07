@@ -163,8 +163,11 @@ void PluginInterface::start()
 
 void PluginInterface::stop()
 {
+    qCDebug(category) << "stopped";
+
     if (isWorking()) {
         // Doesn't happen, as the action is disabled
+        qWarning() << Q_FUNC_INFO << "Unexpected";
         return;
     }
 
