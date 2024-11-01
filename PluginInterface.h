@@ -34,6 +34,7 @@
 #include <chrono>
 
 class FileService;
+class QAction;
 
 class DOG_EXPORT PluginInterface : public QObject
 {
